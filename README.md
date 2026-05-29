@@ -3,6 +3,7 @@
 Next.js + TypeScript + Tailwind CSS PWA sample app for JLPT-style vocabulary practice.
 
 目前資料是 curated learning sample bank，目的是支援產品原型與學習練習流程；不是官方完整 JLPT 清單，也不是從官方或 copyrighted / scraped 資料建立。
+Word bank is designed to grow gradually. Current data is a curated learning sample, not an official complete JLPT list.
 
 ## Features
 
@@ -13,6 +14,7 @@ Next.js + TypeScript + Tailwind CSS PWA sample app for JLPT-style vocabulary pra
 - Word cards show kana, kanji, Traditional Chinese meaning, part of speech, Japanese example, and Chinese translation
 - Browser `speechSynthesis` pronunciation with `ja-JP`
 - Exam mode with session-only React state
+- Fixed 20-question exam session when enough words are available
 - Meaning choice questions
 - Japanese sentence fill questions
 

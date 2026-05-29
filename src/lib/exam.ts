@@ -8,10 +8,17 @@ export type ExamQuestion = {
   id: string;
   type: QuestionType;
   word: JLPTWord;
-  prompt: string;
+  prompt?: string;
   choices: string[];
   answer: string;
   blankSentence?: string;
+};
+
+type GenerateExamSessionInput = {
+  words: JLPTWord[];
+  selectedLevel: ExamLevel;
+  selectedQuestionType: ExamMode;
+  questionCount?: number;
 };
 
 export function getWordsForLevel(words: JLPTWord[], level: ExamLevel) {
@@ -22,18 +29,36 @@ export function getWordsForLevel(words: JLPTWord[], level: ExamLevel) {
   return words.filter((word) => word.level === level);
 }
 
-export function buildQuestion(words: JLPTWord[], mode: ExamMode, index: number): ExamQuestion {
-  const type: QuestionType =
-    mode === "mixed" ? (Math.random() > 0.5 ? "meaning-choice" : "sentence-fill") : mode;
-  const word = pickRandom(words);
+export function generateExamSession({
+  words,
+  selectedLevel,
+  selectedQuestionType,
+  questionCount = 20,
+}: GenerateExamSessionInput): ExamQuestion[] {
+  const pool = getWordsForLevel(words, selectedLevel);
+  const total = Math.min(questionCount, pool.length);
+  const sessionWords = pickSessionWords(pool, total);
+  const questionTypes = buildQuestionTypes(selectedQuestionType, total);
+
+  return sessionWords.map((word, index) =>
+    buildQuestion(pool, word, questionTypes[index] ?? "meaning-choice", index + 1),
+  );
+}
+
+export function buildQuestion(
+  words: JLPTWord[],
+  word: JLPTWord,
+  type: QuestionType,
+  index: number,
+): ExamQuestion {
+  const uniqueId = `${type}-${word.id}-${index}`;
 
   if (type === "sentence-fill") {
     const answer = displayJapanese(word);
     return {
-      id: `${type}-${word.id}-${index}`,
+      id: uniqueId,
       type,
       word,
-      prompt: word.meaningZh,
       choices: buildChoices(words, word, displayJapanese),
       answer,
       blankSentence: blankExample(word),
@@ -41,7 +66,7 @@ export function buildQuestion(words: JLPTWord[], mode: ExamMode, index: number):
   }
 
   return {
-    id: `${type}-${word.id}-${index}`,
+    id: uniqueId,
     type,
     word,
     prompt: `${word.kanji ? `${word.kanji}（${word.kana}）` : word.kana}`,
@@ -70,6 +95,31 @@ function buildChoices(
   return shuffle([answer, ...distractors]);
 }
 
+function pickSessionWords(words: JLPTWord[], count: number) {
+  if (count <= words.length) {
+    return shuffle(words).slice(0, count);
+  }
+
+  const selected: JLPTWord[] = [];
+  while (selected.length < count) {
+    selected.push(...shuffle(words).slice(0, count - selected.length));
+  }
+
+  return selected;
+}
+
+function buildQuestionTypes(mode: ExamMode, count: number): QuestionType[] {
+  if (mode !== "mixed") {
+    return Array.from({ length: count }, () => mode);
+  }
+
+  const types = Array.from({ length: count }, (_, index): QuestionType =>
+    index % 2 === 0 ? "meaning-choice" : "sentence-fill",
+  );
+
+  return shuffle(types);
+}
+
 function blankExample(word: JLPTWord) {
   const target = word.kanji ?? word.kana;
 
@@ -82,10 +132,6 @@ function blankExample(word: JLPTWord) {
   }
 
   return `＿＿：${word.exampleJa}`;
-}
-
-function pickRandom<T>(items: T[]) {
-  return items[Math.floor(Math.random() * items.length)];
 }
 
 function shuffle<T>(items: T[]) {

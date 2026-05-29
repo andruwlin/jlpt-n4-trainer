@@ -5,17 +5,41 @@ import type { ExamQuestion } from "@/lib/exam";
 
 type ExamCardProps = {
   question: ExamQuestion;
+  currentQuestion: number;
+  totalQuestions: number;
+  isLastQuestion: boolean;
   selectedAnswer?: string;
   onAnswer: (answer: string) => void;
   onNext: () => void;
 };
 
-export function ExamCard({ question, selectedAnswer, onAnswer, onNext }: ExamCardProps) {
+export function ExamCard({
+  question,
+  currentQuestion,
+  totalQuestions,
+  isLastQuestion,
+  selectedAnswer,
+  onAnswer,
+  onNext,
+}: ExamCardProps) {
   const answered = Boolean(selectedAnswer);
   const isCorrect = selectedAnswer === question.answer;
+  const progressPercent = totalQuestions === 0 ? 0 : (currentQuestion / totalQuestions) * 100;
 
   return (
     <section className="rounded-lg border border-white/80 bg-white/90 p-4 shadow-card sm:p-6">
+      <div className="mb-5">
+        <div className="mb-2 flex items-center justify-between gap-3 text-xs font-bold text-ink/60">
+          <span>
+            Question {currentQuestion} / {totalQuestions}
+          </span>
+          <span>{question.type === "meaning-choice" ? "中文意思" : "日文填空"}</span>
+        </div>
+        <div className="h-2 overflow-hidden rounded-full bg-paper">
+          <div className="h-full rounded-full bg-matcha" style={{ width: `${progressPercent}%` }} />
+        </div>
+      </div>
+
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <span className="rounded-full bg-sakura/25 px-3 py-1 text-xs font-bold text-ink">
           {question.type === "meaning-choice" ? "中文意思" : "日文填空"}
@@ -38,7 +62,6 @@ export function ExamCard({ question, selectedAnswer, onAnswer, onNext }: ExamCar
           <h2 className="mt-2 break-words text-2xl font-bold leading-relaxed text-ink">
             {question.blankSentence}
           </h2>
-          <p className="mt-3 text-sm leading-6 text-ink/70">提示：{question.prompt}</p>
         </>
       )}
 
@@ -76,12 +99,12 @@ export function ExamCard({ question, selectedAnswer, onAnswer, onNext }: ExamCar
           <p className="mt-2 text-sm leading-6 text-ink">
             正確答案：<span className="font-bold">{question.answer}</span>
           </p>
+          <p className="mt-2 break-words text-sm font-bold leading-6 text-ink">
+            {question.word.exampleJa}
+          </p>
+          <p className="mt-1 text-sm leading-6 text-ink/65">{question.word.exampleZh}</p>
           {question.type === "sentence-fill" ? (
             <>
-              <p className="mt-2 break-words text-sm font-bold leading-6 text-ink">
-                {question.word.exampleJa}
-              </p>
-              <p className="mt-1 text-sm leading-6 text-ink/65">{question.word.exampleZh}</p>
               <button
                 type="button"
                 onClick={() => speakJapanese(question.word.exampleJa)}
@@ -96,7 +119,7 @@ export function ExamCard({ question, selectedAnswer, onAnswer, onNext }: ExamCar
             onClick={onNext}
             className="mt-4 w-full rounded-lg bg-ink px-4 py-3 text-sm font-bold text-white"
           >
-            下一題
+            {isLastQuestion ? "查看結果" : "下一題"}
           </button>
         </div>
       ) : null}
