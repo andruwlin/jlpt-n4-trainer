@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="N4">
+  <rect width="192" height="192" rx="42" fill="#fffaf2"/>
+  <circle cx="146" cy="46" r="26" fill="#f6b8c7"/>
+  <path d="M48 58h96v76c0 11-9 20-20 20H68c-11 0-20-9-20-20V58Z" fill="#6f9e7a"/>
+  <path d="M68 80h56M68 104h42M68 128h50" stroke="#fffaf2" stroke-width="10" stroke-linecap="round"/>
+  <text x="96" y="48" text-anchor="middle" font-family="Arial, sans-serif" font-size="30" font-weight="700" fill="#24312a">N4</text>
+</svg>
