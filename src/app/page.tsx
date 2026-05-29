@@ -18,6 +18,13 @@ const entries = [
     cta: "開始練習",
   },
   {
+    href: "/grammar",
+    title: "Grammar 文法教學",
+    label: "文法",
+    description: "Learn grammar patterns with examples，依 N5 / N4 瀏覽文法接續與例句。",
+    cta: "開始學習",
+  },
+  {
     href: "#",
     title: "Progress",
     label: "錯題 / 進度",
@@ -48,7 +55,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-3">
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {entries.map((entry) => {
           const content = (
             <article

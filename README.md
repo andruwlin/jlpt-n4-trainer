@@ -4,6 +4,7 @@ Next.js + TypeScript + Tailwind CSS PWA sample app for JLPT-style vocabulary pra
 
 目前資料是 curated learning sample bank，目的是支援產品原型與學習練習流程；不是官方完整 JLPT 清單，也不是從官方或 copyrighted / scraped 資料建立。
 Word bank is designed to grow gradually. Current data is a curated learning sample, not an official complete JLPT list.
+Grammar bank is a curated learning sample, not an official complete JLPT grammar list.
 
 ## Features
 
@@ -11,7 +12,9 @@ Word bank is designed to grow gradually. Current data is a curated learning samp
 - Vocabulary browser with level filter: All / N5 / N4
 - Search by kana, kanji, or Chinese meaning
 - 300 local sample words: N5 150 + N4 150
+- 40 local sample grammar points: N5 20 + N4 20
 - Word cards show kana, kanji, Traditional Chinese meaning, part of speech, Japanese example, and Chinese translation
+- Grammar cards show pattern, meaning, structure, explanation, examples, tags, and example speech
 - Browser `speechSynthesis` pronunciation with `ja-JP`
 - Exam mode with session-only React state
 - Fixed 20-question exam session when enough words are available
@@ -45,6 +48,7 @@ Open `http://localhost:3000`.
 
 ```bash
 npm run check:words
+npm run check:grammar
 npm run lint
 npm run build
 ```
