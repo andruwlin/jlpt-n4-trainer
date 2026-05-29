@@ -10,7 +10,7 @@ Word bank is designed to grow gradually. Current data is a curated learning samp
 - Home dashboard with three entries: Vocabulary, Exam, Progress coming soon
 - Vocabulary browser with level filter: All / N5 / N4
 - Search by kana, kanji, or Chinese meaning
-- 160 local sample words: N5 80 + N4 80
+- 300 local sample words: N5 150 + N4 150
 - Word cards show kana, kanji, Traditional Chinese meaning, part of speech, Japanese example, and Chinese translation
 - Browser `speechSynthesis` pronunciation with `ja-JP`
 - Exam mode with session-only React state
@@ -44,6 +44,7 @@ Open `http://localhost:3000`.
 ## Verification
 
 ```bash
+npm run check:words
 npm run lint
 npm run build
 ```
