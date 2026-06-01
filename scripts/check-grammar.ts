@@ -31,8 +31,8 @@ grammarPoints.forEach((grammar, index) => {
     errors.push(`${label}: invalid level "${grammar.level}"`);
   }
 
-  if (!Array.isArray(grammar.tags)) {
-    errors.push(`${label}: tags must be an array`);
+  if (!Array.isArray(grammar.tags) || grammar.tags.length === 0) {
+    errors.push(`${label}: tags must be a non-empty array`);
   }
 
   if (grammar.id) {

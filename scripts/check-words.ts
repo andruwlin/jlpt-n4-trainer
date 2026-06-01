@@ -30,8 +30,8 @@ words.forEach((word, index) => {
     errors.push(`${label}: invalid level "${word.level}"`);
   }
 
-  if (!Array.isArray(word.tags)) {
-    errors.push(`${label}: tags must be an array`);
+  if (!Array.isArray(word.tags) || word.tags.length === 0) {
+    errors.push(`${label}: tags must be a non-empty array`);
   }
 
   if (word.id) {
