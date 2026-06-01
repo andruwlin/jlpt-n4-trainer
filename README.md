@@ -19,6 +19,8 @@ Vocabulary bank and grammar bank are curated learning samples. They are designed
 - Fixed 20-question exam session when enough words are available
 - Meaning choice questions
 - Japanese sentence fill questions
+- Grammar Exam uses curated learning sample grammar data with fixed 20-question sessions
+- Grammar Exam is not an official complete JLPT grammar exam
 
 ## Tech
 

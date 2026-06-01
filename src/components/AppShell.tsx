@@ -25,6 +25,9 @@ export function AppShell({ children, eyebrow = "JLPT N5 / N4", title, descriptio
           <Link className="rounded-full bg-paper px-3 py-2 transition hover:bg-sakura/25" href="/exam">
             Exam
           </Link>
+          <Link className="rounded-full bg-paper px-3 py-2 transition hover:bg-sakura/25" href="/grammar-exam">
+            Grammar Exam
+          </Link>
         </nav>
         <div className="inline-flex items-center rounded-full bg-matcha/10 px-3 py-1 text-xs font-bold text-matcha">
           {eyebrow}
