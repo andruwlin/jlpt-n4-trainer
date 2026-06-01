@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "tsc --noEmit",
     "check:words": "tsx scripts/check-words.ts",
-    "check:grammar": "tsx scripts/check-grammar.ts"
+    "check:grammar": "tsx scripts/check-grammar.ts",
+    "check:conjugation": "tsx scripts/check-conjugation.ts"
   },
   "dependencies": {
     "next": "^15.3.4",

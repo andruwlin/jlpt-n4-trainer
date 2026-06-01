@@ -1,0 +1,334 @@
+export type ConjugationLevel = "N5" | "N4";
+export type ConjugationCategory = "verb" | "i-adjective" | "na-adjective" | "noun";
+
+export type ConjugationRule = {
+  id: string;
+  level: ConjugationLevel;
+  title: string;
+  category: ConjugationCategory;
+  form: string;
+  explanationZh: string;
+  rule: string;
+  examples: {
+    base: string;
+    result: string;
+    meaningZh: string;
+    exampleJa?: string;
+    exampleZh?: string;
+  }[];
+  tags: string[];
+};
+
+export const conjugationRules: ConjugationRule[] = [
+  {
+    id: "n5-c001",
+    level: "N5",
+    title: "動詞ます形",
+    category: "verb",
+    form: "ます",
+    explanationZh: "用禮貌語氣描述現在或未來的動作。",
+    rule: "動詞ます形去掉辭書形變化後接 ます。",
+    examples: [
+      { base: "食べる", result: "食べます", meaningZh: "吃", exampleJa: "朝ごはんを食べます。", exampleZh: "吃早餐。" },
+      { base: "行く", result: "行きます", meaningZh: "去", exampleJa: "学校へ行きます。", exampleZh: "去學校。" },
+    ],
+    tags: ["polite", "present"],
+  },
+  {
+    id: "n5-c002",
+    level: "N5",
+    title: "動詞ません",
+    category: "verb",
+    form: "ません",
+    explanationZh: "用禮貌語氣表示不做某個動作。",
+    rule: "動詞ます形去ます + ません。",
+    examples: [
+      { base: "飲みます", result: "飲みません", meaningZh: "不喝", exampleJa: "今日はコーヒーを飲みません。", exampleZh: "今天不喝咖啡。" },
+      { base: "見ます", result: "見ません", meaningZh: "不看", exampleJa: "夜はテレビを見ません。", exampleZh: "晚上不看電視。" },
+    ],
+    tags: ["negative", "polite"],
+  },
+  {
+    id: "n5-c003",
+    level: "N5",
+    title: "動詞ました",
+    category: "verb",
+    form: "ました",
+    explanationZh: "用禮貌語氣表示過去做了某個動作。",
+    rule: "動詞ます形去ます + ました。",
+    examples: [
+      { base: "買います", result: "買いました", meaningZh: "買了", exampleJa: "本を買いました。", exampleZh: "買了書。" },
+      { base: "寝ます", result: "寝ました", meaningZh: "睡了", exampleJa: "昨日は早く寝ました。", exampleZh: "昨天早睡了。" },
+    ],
+    tags: ["past", "polite"],
+  },
+  {
+    id: "n5-c004",
+    level: "N5",
+    title: "動詞ませんでした",
+    category: "verb",
+    form: "ませんでした",
+    explanationZh: "用禮貌語氣表示過去沒有做某個動作。",
+    rule: "動詞ます形去ます + ませんでした。",
+    examples: [
+      { base: "行きます", result: "行きませんでした", meaningZh: "沒有去", exampleJa: "昨日は学校へ行きませんでした。", exampleZh: "昨天沒有去學校。" },
+      { base: "食べます", result: "食べませんでした", meaningZh: "沒有吃", exampleJa: "朝ごはんを食べませんでした。", exampleZh: "沒有吃早餐。" },
+    ],
+    tags: ["past", "negative"],
+  },
+  {
+    id: "n5-c005",
+    level: "N5",
+    title: "動詞て形基礎",
+    category: "verb",
+    form: "て形",
+    explanationZh: "て形可用來連接句子、提出請求，或接續其他文法。",
+    rule: "依動詞類型變化，如 食べる -> 食べて、書く -> 書いて、行く -> 行って。",
+    examples: [
+      { base: "食べる", result: "食べて", meaningZh: "吃了、請吃", exampleJa: "ここで食べてください。", exampleZh: "請在這裡吃。" },
+      { base: "書く", result: "書いて", meaningZh: "寫了、請寫", exampleJa: "名前を書いてください。", exampleZh: "請寫名字。" },
+    ],
+    tags: ["te-form", "verb"],
+  },
+  {
+    id: "n5-c006",
+    level: "N5",
+    title: "動詞ない形基礎",
+    category: "verb",
+    form: "ない形",
+    explanationZh: "ない形是普通否定形，也常接續其他文法。",
+    rule: "依動詞類型變化，如 食べる -> 食べない、行く -> 行かない、する -> しない。",
+    examples: [
+      { base: "食べる", result: "食べない", meaningZh: "不吃", exampleJa: "夜は甘い物を食べないです。", exampleZh: "晚上不吃甜食。" },
+      { base: "行く", result: "行かない", meaningZh: "不去", exampleJa: "今日は会社へ行かないです。", exampleZh: "今天不去公司。" },
+    ],
+    tags: ["nai-form", "negative"],
+  },
+  {
+    id: "n5-c007",
+    level: "N5",
+    title: "い形容詞現在肯定",
+    category: "i-adjective",
+    form: "いです",
+    explanationZh: "い形容詞可直接接です，表示禮貌語氣。",
+    rule: "い形容詞 + です。",
+    examples: [
+      { base: "高い", result: "高いです", meaningZh: "很高、很貴", exampleJa: "この時計は高いです。", exampleZh: "這支錶很貴。" },
+      { base: "寒い", result: "寒いです", meaningZh: "很冷", exampleJa: "今日は寒いです。", exampleZh: "今天很冷。" },
+    ],
+    tags: ["i-adjective", "present"],
+  },
+  {
+    id: "n5-c008",
+    level: "N5",
+    title: "い形容詞否定",
+    category: "i-adjective",
+    form: "くないです",
+    explanationZh: "い形容詞否定時，把最後的い改成くないです。",
+    rule: "い形容詞去い + くないです。",
+    examples: [
+      { base: "暑い", result: "暑くないです", meaningZh: "不熱", exampleJa: "今日は暑くないです。", exampleZh: "今天不熱。" },
+      { base: "新しい", result: "新しくないです", meaningZh: "不新", exampleJa: "この靴は新しくないです。", exampleZh: "這雙鞋不是新的。" },
+    ],
+    tags: ["i-adjective", "negative"],
+  },
+  {
+    id: "n5-c009",
+    level: "N5",
+    title: "い形容詞過去",
+    category: "i-adjective",
+    form: "かったです",
+    explanationZh: "い形容詞過去肯定時，把最後的い改成かったです。",
+    rule: "い形容詞去い + かったです。",
+    examples: [
+      { base: "楽しい", result: "楽しかったです", meaningZh: "很開心", exampleJa: "旅行は楽しかったです。", exampleZh: "旅行很開心。" },
+      { base: "安い", result: "安かったです", meaningZh: "很便宜", exampleJa: "この野菜は安かったです。", exampleZh: "這個蔬菜很便宜。" },
+    ],
+    tags: ["i-adjective", "past"],
+  },
+  {
+    id: "n5-c010",
+    level: "N5",
+    title: "い形容詞過去否定",
+    category: "i-adjective",
+    form: "くなかったです",
+    explanationZh: "表示過去不是某種狀態。",
+    rule: "い形容詞去い + くなかったです。",
+    examples: [
+      { base: "忙しい", result: "忙しくなかったです", meaningZh: "不忙", exampleJa: "昨日は忙しくなかったです。", exampleZh: "昨天不忙。" },
+      { base: "寒い", result: "寒くなかったです", meaningZh: "不冷", exampleJa: "今朝は寒くなかったです。", exampleZh: "今天早上不冷。" },
+    ],
+    tags: ["i-adjective", "past", "negative"],
+  },
+  {
+    id: "n5-c011",
+    level: "N5",
+    title: "な形容詞現在肯定",
+    category: "na-adjective",
+    form: "です",
+    explanationZh: "な形容詞作句尾時直接接です。",
+    rule: "な形容詞 + です。",
+    examples: [
+      { base: "静か", result: "静かです", meaningZh: "很安靜", exampleJa: "図書館は静かです。", exampleZh: "圖書館很安靜。" },
+      { base: "便利", result: "便利です", meaningZh: "很方便", exampleJa: "この駅は便利です。", exampleZh: "這個車站很方便。" },
+    ],
+    tags: ["na-adjective", "present"],
+  },
+  {
+    id: "n5-c012",
+    level: "N5",
+    title: "な形容詞否定與過去",
+    category: "na-adjective",
+    form: "ではありません / でした",
+    explanationZh: "な形容詞否定和過去變化接近名詞句。",
+    rule: "な形容詞 + ではありません / でした / ではありませんでした。",
+    examples: [
+      { base: "暇", result: "暇ではありません", meaningZh: "沒有空", exampleJa: "今日は暇ではありません。", exampleZh: "今天沒有空。" },
+      { base: "静か", result: "静かでした", meaningZh: "很安靜", exampleJa: "昨日の教室は静かでした。", exampleZh: "昨天的教室很安靜。" },
+    ],
+    tags: ["na-adjective", "negative", "past"],
+  },
+  {
+    id: "n5-c013",
+    level: "N5",
+    title: "名詞です變化",
+    category: "noun",
+    form: "です / ではありません / でした",
+    explanationZh: "名詞句可用です系列表示肯定、否定與過去。",
+    rule: "名詞 + です / ではありません / でした / ではありませんでした。",
+    examples: [
+      { base: "学生", result: "学生です", meaningZh: "是學生", exampleJa: "私は学生です。", exampleZh: "我是學生。" },
+      { base: "休み", result: "休みではありませんでした", meaningZh: "以前不是休假", exampleJa: "昨日は休みではありませんでした。", exampleZh: "昨天不是休假。" },
+    ],
+    tags: ["noun", "polite"],
+  },
+  {
+    id: "n4-c001",
+    level: "N4",
+    title: "動詞た形",
+    category: "verb",
+    form: "た形",
+    explanationZh: "た形是普通過去形，也常接續經驗、列舉等文法。",
+    rule: "て形的て/で改成た/だ，如 食べて -> 食べた、読んで -> 読んだ。",
+    examples: [
+      { base: "食べる", result: "食べた", meaningZh: "吃了", exampleJa: "朝ごはんを食べた後で出かけます。", exampleZh: "吃完早餐後出門。" },
+      { base: "読む", result: "読んだ", meaningZh: "讀了", exampleJa: "昨日読んだ本は面白かったです。", exampleZh: "昨天讀的書很有趣。" },
+    ],
+    tags: ["ta-form", "past"],
+  },
+  {
+    id: "n4-c002",
+    level: "N4",
+    title: "動詞可能形基礎",
+    category: "verb",
+    form: "可能形",
+    explanationZh: "表示能不能做某個動作。",
+    rule: "一段動詞去る+られる；五段動詞變え段+る；する->できる。",
+    examples: [
+      { base: "食べる", result: "食べられる", meaningZh: "能吃", exampleJa: "辛い料理も食べられます。", exampleZh: "辣的料理也能吃。" },
+      { base: "読む", result: "読める", meaningZh: "能讀", exampleJa: "この漢字は読めます。", exampleZh: "這個漢字我能讀。" },
+    ],
+    tags: ["potential", "verb"],
+  },
+  {
+    id: "n4-c003",
+    level: "N4",
+    title: "動詞意向形基礎",
+    category: "verb",
+    form: "意向形",
+    explanationZh: "表示意志、提議，常接と思います。",
+    rule: "一段動詞去る+よう；五段動詞變お段+う；する->しよう。",
+    examples: [
+      { base: "見る", result: "見よう", meaningZh: "來看吧、想看", exampleJa: "週末に映画を見ようと思います。", exampleZh: "週末打算看電影。" },
+      { base: "行く", result: "行こう", meaningZh: "去吧、想去", exampleJa: "明日、図書館へ行こうと思います。", exampleZh: "明天打算去圖書館。" },
+    ],
+    tags: ["volitional", "verb"],
+  },
+  {
+    id: "n4-c004",
+    level: "N4",
+    title: "動詞ば形基礎",
+    category: "verb",
+    form: "ば形",
+    explanationZh: "表示條件，相當於如果、只要。",
+    rule: "五段動詞變え段+ば；一段動詞去る+れば；い形容詞去い+ければ。",
+    examples: [
+      { base: "行く", result: "行けば", meaningZh: "如果去", exampleJa: "早く行けば、間に合います。", exampleZh: "如果早點去，就趕得上。" },
+      { base: "安い", result: "安ければ", meaningZh: "如果便宜", exampleJa: "安ければ買います。", exampleZh: "如果便宜就買。" },
+    ],
+    tags: ["conditional"],
+  },
+  {
+    id: "n4-c005",
+    level: "N4",
+    title: "命令形與禁止形簡介",
+    category: "verb",
+    form: "命令形 / 辞書形 + な",
+    explanationZh: "命令形語氣很強，禁止形表示不要做；初學階段先理解即可。",
+    rule: "命令形如 行け、見ろ；禁止形為動詞辭書形 + な。",
+    examples: [
+      { base: "行く", result: "行け", meaningZh: "去！", exampleJa: "命令形は強い言い方です。", exampleZh: "命令形是很強的說法。" },
+      { base: "入る", result: "入るな", meaningZh: "不要進入", exampleJa: "ここに入るなと書いてあります。", exampleZh: "這裡寫著不要進入。" },
+    ],
+    tags: ["imperative", "prohibition"],
+  },
+  {
+    id: "n4-c006",
+    level: "N4",
+    title: "ている：進行與狀態",
+    category: "verb",
+    form: "ている",
+    explanationZh: "可表示正在進行，也可表示動作後留下的狀態。",
+    rule: "動詞て形 + いる / います。",
+    examples: [
+      { base: "読む", result: "読んでいる", meaningZh: "正在讀", exampleJa: "父は新聞を読んでいます。", exampleZh: "爸爸正在看報紙。" },
+      { base: "結婚する", result: "結婚している", meaningZh: "已婚", exampleJa: "兄は結婚しています。", exampleZh: "哥哥已婚。" },
+    ],
+    tags: ["aspect", "verb"],
+  },
+  {
+    id: "n4-c007",
+    level: "N4",
+    title: "ておく初階",
+    category: "verb",
+    form: "ておく",
+    explanationZh: "表示為了之後先做好準備。",
+    rule: "動詞て形 + おく / おきます。",
+    examples: [
+      { base: "予約する", result: "予約しておく", meaningZh: "先預約好", exampleJa: "旅行の前にホテルを予約しておきます。", exampleZh: "旅行前先預約好飯店。" },
+      { base: "買う", result: "買っておく", meaningZh: "先買好", exampleJa: "水を買っておきます。", exampleZh: "先買好水。" },
+    ],
+    tags: ["preparation", "verb"],
+  },
+  {
+    id: "n4-c008",
+    level: "N4",
+    title: "てしまう初階",
+    category: "verb",
+    form: "てしまう",
+    explanationZh: "可表示動作完成，也可表示遺憾或不小心發生。",
+    rule: "動詞て形 + しまう / しまいます。",
+    examples: [
+      { base: "なくす", result: "なくしてしまう", meaningZh: "弄丟了", exampleJa: "切符をなくしてしまいました。", exampleZh: "把票弄丟了。" },
+      { base: "食べる", result: "食べてしまう", meaningZh: "吃完了", exampleJa: "ケーキを全部食べてしまいました。", exampleZh: "把蛋糕全部吃完了。" },
+    ],
+    tags: ["completion", "feeling"],
+  },
+  {
+    id: "n4-c009",
+    level: "N4",
+    title: "形容詞副詞化",
+    category: "i-adjective",
+    form: "い形容詞く / な形容詞に",
+    explanationZh: "形容詞改成副詞形式後，可修飾動詞。",
+    rule: "い形容詞去い + く；な形容詞 + に。",
+    examples: [
+      { base: "早い", result: "早く", meaningZh: "早早地、快地", exampleJa: "朝早く起きます。", exampleZh: "早上早起。" },
+      { base: "静か", result: "静かに", meaningZh: "安靜地", exampleJa: "図書館で静かに勉強します。", exampleZh: "在圖書館安靜地讀書。" },
+    ],
+    tags: ["adverb", "adjective"],
+  },
+];
+
+export const n5ConjugationRules = conjugationRules.filter((rule) => rule.level === "N5");
+export const n4ConjugationRules = conjugationRules.filter((rule) => rule.level === "N4");

@@ -32,6 +32,13 @@ const entries = [
     cta: "開始測驗",
   },
   {
+    href: "/conjugation",
+    title: "Conjugation 詞性變化",
+    label: "活用",
+    description: "Learn verb and adjective forms，瀏覽 N5 / N4 常見動詞、形容詞、名詞變化。",
+    cta: "開始學習",
+  },
+  {
     href: "#",
     title: "Progress",
     label: "錯題 / 進度",
@@ -62,7 +69,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {entries.map((entry) => {
           const content = (
             <article
