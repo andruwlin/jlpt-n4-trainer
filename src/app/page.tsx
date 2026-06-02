@@ -46,6 +46,13 @@ const entries = [
     cta: "開始測驗",
   },
   {
+    href: "/dashboard",
+    title: "Dashboard 學習進度",
+    label: "進度",
+    description: "Track your practice progress，查看今日題數、最近成績與錯題紀錄。",
+    cta: "查看進度",
+  },
+  {
     href: "#",
     title: "Progress",
     label: "錯題 / 進度",
@@ -59,7 +66,7 @@ export default function Home() {
   return (
     <AppShell
       title="N4/N5 日文練習"
-      description="用精簡的 curated sample bank 先建立穩定的單字瀏覽與 Exam 練習流程。"
+      description="N4/N5 Japanese practice, one small session at a time. 每天 20 題，慢慢累積日文力。"
     >
       <section className="mb-5 grid grid-cols-3 gap-2">
         <div className="rounded-lg bg-white/85 p-3 text-center shadow-sm">

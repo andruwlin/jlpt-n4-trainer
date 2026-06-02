@@ -10,6 +10,7 @@ import {
   type ExamMode,
   type ExamQuestion,
 } from "@/lib/exam";
+import { recordWeakItem, saveExamResult } from "@/lib/progress";
 import { useState } from "react";
 
 type ExamRunnerProps = {
@@ -56,11 +57,29 @@ export function ExamRunner({ words }: ExamRunnerProps) {
     setAnsweredCount((count) => count + 1);
     if (answer === question.answer) {
       setCorrectCount((count) => count + 1);
+    } else {
+      recordWeakItem({
+        kind: "vocabulary",
+        sourceId: question.word.id,
+        label: question.word.kanji ? `${question.word.kanji}（${question.word.kana}）` : question.word.kana,
+        level: question.word.level,
+      });
     }
   }
 
   function nextQuestion() {
     if (currentIndex + 1 >= totalQuestions) {
+      saveExamResult({
+        id: `vocabulary-${Date.now()}`,
+        kind: "vocabulary",
+        level,
+        questionType: mode,
+        total: totalQuestions,
+        correct: correctCount,
+        incorrect: wrongCount,
+        accuracy,
+        completedAt: new Date().toISOString(),
+      });
       setIsFinished(true);
       return;
     }

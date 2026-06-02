@@ -12,6 +12,7 @@ import {
   type GrammarExamMode,
   type GrammarExamQuestion,
 } from "@/lib/grammarExam";
+import { recordWeakItem, saveExamResult } from "@/lib/progress";
 
 type GrammarExamRunnerProps = {
   grammarPoints: GrammarPoint[];
@@ -57,11 +58,29 @@ export function GrammarExamRunner({ grammarPoints }: GrammarExamRunnerProps) {
     setAnsweredCount((count) => count + 1);
     if (answer === question.answer) {
       setCorrectCount((count) => count + 1);
+    } else {
+      recordWeakItem({
+        kind: "grammar",
+        sourceId: question.grammar.id,
+        label: question.grammar.pattern,
+        level: question.grammar.level,
+      });
     }
   }
 
   function nextQuestion() {
     if (currentIndex + 1 >= totalQuestions) {
+      saveExamResult({
+        id: `grammar-${Date.now()}`,
+        kind: "grammar",
+        level,
+        questionType: mode,
+        total: totalQuestions,
+        correct: correctCount,
+        incorrect: wrongCount,
+        accuracy,
+        completedAt: new Date().toISOString(),
+      });
       setIsFinished(true);
       return;
     }

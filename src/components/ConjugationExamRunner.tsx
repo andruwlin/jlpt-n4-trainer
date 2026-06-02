@@ -13,6 +13,7 @@ import {
   type ConjugationExamMode,
   type ConjugationExamQuestion,
 } from "@/lib/conjugationExam";
+import { recordWeakItem, saveExamResult } from "@/lib/progress";
 
 type ConjugationExamRunnerProps = {
   conjugationRules: ConjugationRule[];
@@ -66,11 +67,29 @@ export function ConjugationExamRunner({ conjugationRules }: ConjugationExamRunne
     setAnsweredCount((count) => count + 1);
     if (answer === question.answer) {
       setCorrectCount((count) => count + 1);
+    } else {
+      recordWeakItem({
+        kind: "conjugation",
+        sourceId: `${question.rule.id}-${question.example.base}-${question.example.result}`,
+        label: `${question.example.base} → ${question.example.result} / ${question.rule.title}`,
+        level: question.rule.level,
+      });
     }
   }
 
   function nextQuestion() {
     if (currentIndex + 1 >= totalQuestions) {
+      saveExamResult({
+        id: `conjugation-${Date.now()}`,
+        kind: "conjugation",
+        level,
+        questionType: `${category}:${mode}`,
+        total: totalQuestions,
+        correct: correctCount,
+        incorrect: wrongCount,
+        accuracy,
+        completedAt: new Date().toISOString(),
+      });
       setIsFinished(true);
       return;
     }
