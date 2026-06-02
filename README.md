@@ -22,6 +22,8 @@ Vocabulary bank, grammar bank, and conjugation content are curated learning samp
 - Japanese sentence fill questions
 - Grammar Exam uses curated learning sample grammar data with fixed 20-question sessions
 - Grammar Exam is not an official complete JLPT grammar exam
+- Conjugation Exam uses curated learning sample conjugation data with fixed 20-question sessions
+- Conjugation Exam is not an official complete JLPT exam
 
 ## Tech
 

@@ -39,6 +39,13 @@ const entries = [
     cta: "開始學習",
   },
   {
+    href: "/conjugation-exam",
+    title: "Conjugation Exam 活用測驗",
+    label: "活用測驗",
+    description: "Practice verb and adjective forms，用 20 題四選一練習活用判讀。",
+    cta: "開始測驗",
+  },
+  {
     href: "#",
     title: "Progress",
     label: "錯題 / 進度",
@@ -69,7 +76,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {entries.map((entry) => {
           const content = (
             <article
