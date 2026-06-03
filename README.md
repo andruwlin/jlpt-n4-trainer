@@ -26,6 +26,7 @@ Progress Lite is saved locally in the browser with `localStorage`; there is no l
 - Conjugation Exam uses curated learning sample conjugation data with fixed 20-question sessions
 - Conjugation Exam is not an official complete JLPT exam
 - Dashboard / Progress Lite tracks recent exam results, local accuracy, and weak items
+- Dashboard empty state explains that progress starts after completing an exam; progress is local-only
 - v0-J includes light UI polish for a more consistent mobile-first learning experience
 
 ## Tech

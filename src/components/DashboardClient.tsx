@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
   clearProgress,
@@ -67,10 +68,24 @@ export function DashboardClient() {
     refresh();
   }, []);
 
-  const hasProgress = getProgress().results.length > 0 || getProgress().weakItems.length > 0;
+  const hasResults = snapshot.recentResults.length > 0;
+  const hasProgress = hasResults || snapshot.weakItems.length > 0;
 
   return (
     <div className="space-y-5">
+      {!hasResults ? <DashboardEmptyState /> : null}
+
+      <section className="rounded-lg border border-white/80 bg-white/85 p-4 shadow-card sm:p-5">
+        <p className="text-sm font-bold text-matcha">Local Progress</p>
+        <p className="mt-2 text-sm leading-6 text-ink/70">
+          進度只會儲存在目前這台裝置與瀏覽器。清除瀏覽器資料或換裝置後，Dashboard 會重新開始。
+        </p>
+        <p className="mt-1 text-sm leading-6 text-ink/55">
+          Progress is saved locally in this browser. Clearing browser data or using another device will reset the
+          dashboard.
+        </p>
+      </section>
+
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <SummaryCard label="今日練習題數" value={snapshot.today.questionCount} />
         <SummaryCard label="今日完成測驗" value={snapshot.today.examCount} />
@@ -124,7 +139,7 @@ export function DashboardClient() {
               ))}
             </div>
           ) : (
-            <EmptyState text="尚未完成測驗。完成一次 20 題 session 後，結果會出現在這裡。" />
+            <EmptyState text="完成一次測驗後會顯示最近紀錄。" />
           )}
         </div>
 
@@ -149,11 +164,44 @@ export function DashboardClient() {
               ))}
             </div>
           ) : (
-            <EmptyState text={hasProgress ? "目前沒有錯題紀錄。" : "答錯的題目會累積在這裡，方便之後回頭複習。"} />
+            <EmptyState text={hasProgress ? "目前沒有錯題，保持下去！" : "答錯的題目會累積在這裡，方便之後回頭複習。"} />
           )}
         </div>
       </section>
     </div>
+  );
+}
+
+function DashboardEmptyState() {
+  const ctas = [
+    { href: "/exam", label: "Start Vocabulary Exam", description: "單字 20 題" },
+    { href: "/grammar-exam", label: "Start Grammar Exam", description: "文法 20 題" },
+    { href: "/conjugation-exam", label: "Start Conjugation Exam", description: "活用 20 題" },
+  ];
+
+  return (
+    <section className="rounded-lg border border-matcha/20 bg-white/90 p-5 shadow-card sm:p-7">
+      <div className="max-w-2xl">
+        <p className="text-sm font-bold text-matcha">No practice history yet</p>
+        <h2 className="mt-2 text-3xl font-bold leading-tight text-ink">還沒有練習紀錄</h2>
+        <p className="mt-3 text-sm leading-6 text-ink/70">
+          完成一次 20 題測驗後，這裡會開始記錄你的學習進度。Your progress is saved only on this device.
+        </p>
+      </div>
+
+      <div className="mt-5 grid gap-3 md:grid-cols-3">
+        {ctas.map((cta) => (
+          <Link
+            key={cta.href}
+            href={cta.href}
+            className="rounded-lg border border-ink/10 bg-paper px-4 py-4 transition hover:border-matcha/30 hover:bg-matcha/10"
+          >
+            <p className="text-sm font-bold text-ink">{cta.label}</p>
+            <p className="mt-1 text-xs font-bold text-ink/50">{cta.description}</p>
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }
 
