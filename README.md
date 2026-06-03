@@ -6,13 +6,18 @@ Next.js + TypeScript + Tailwind CSS PWA sample app for JLPT-style vocabulary pra
 Vocabulary bank, grammar bank, and conjugation content are curated learning samples. They are designed to grow gradually and are not official complete JLPT lists.
 Progress Lite is saved locally in the browser with `localStorage`; there is no login, database, or cloud sync yet. Clearing browser data will clear progress.
 
+Current curated content counts after v0-K:
+- Vocabulary: N5 300 / N4 300
+- Grammar: N5 45 / N4 45
+- Conjugation: 38 total rules
+
 ## Features
 
 - Home dashboard with three entries: Vocabulary, Exam, Progress coming soon
 - Vocabulary browser with level filter: All / N5 / N4
 - Search by kana, kanji, or Chinese meaning
-- 400 local sample words: N5 200 + N4 200
-- 60 local sample grammar points: N5 30 + N4 30
+- 600 local sample words: N5 300 + N4 300
+- 90 local sample grammar points: N5 45 + N4 45
 - Conjugation Teaching page with curated N5 / N4 verb, adjective, and noun form samples
 - Word cards show kana, kanji, Traditional Chinese meaning, part of speech, Japanese example, and Chinese translation
 - Grammar cards show pattern, meaning, structure, explanation, examples, tags, and example speech
