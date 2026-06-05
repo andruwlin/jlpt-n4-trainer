@@ -5,6 +5,7 @@ Next.js + TypeScript + Tailwind CSS PWA sample app for JLPT-style vocabulary pra
 目前資料是 curated learning sample bank，目的是支援產品原型與學習練習流程；不是官方完整 JLPT 清單，也不是從官方或 copyrighted / scraped 資料建立。
 Vocabulary bank, grammar bank, and conjugation content are curated learning samples. They are designed to grow gradually and are not official complete JLPT lists.
 Progress Lite is saved locally in the browser with `localStorage`; there is no login, database, or cloud sync yet. Clearing browser data will clear progress.
+Weak Items Review Mode uses local weak items stored in `localStorage`; weak items are local to the browser/device and do not require login, database, or cloud sync.
 
 Current curated content counts after v0-K:
 - Vocabulary: N5 300 / N4 300
@@ -32,6 +33,7 @@ Current curated content counts after v0-K:
 - Conjugation Exam is not an official complete JLPT exam
 - Dashboard / Progress Lite tracks recent exam results, local accuracy, and weak items
 - Dashboard empty state explains that progress starts after completing an exam; progress is local-only
+- Weak Items Review Mode lets learners review local Vocabulary, Grammar, and Conjugation mistakes with four-choice questions
 - v0-J includes light UI polish for a more consistent mobile-first learning experience
 
 ## Tech

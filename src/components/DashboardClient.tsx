@@ -144,8 +144,21 @@ export function DashboardClient() {
         </div>
 
         <div className="rounded-lg border border-white/80 bg-white/85 p-4 shadow-card sm:p-5">
-          <p className="text-sm font-bold text-matcha">Weak Items</p>
-          <h2 className="mt-1 text-2xl font-bold text-ink">錯題紀錄</h2>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-bold text-matcha">Weak Items</p>
+              <h2 className="mt-1 text-2xl font-bold text-ink">錯題紀錄</h2>
+            </div>
+            {snapshot.weakItems.length > 0 ? (
+              <Link
+                href="/review"
+                className="rounded-lg bg-ink px-4 py-2 text-sm font-bold text-white"
+              >
+                Review weak items
+                <span className="block text-xs font-bold text-white/75">錯題重練</span>
+              </Link>
+            ) : null}
+          </div>
           {snapshot.weakItems.length > 0 ? (
             <div className="mt-4 space-y-3">
               {snapshot.weakItems.map((item) => (
