@@ -115,7 +115,10 @@ function QuestionPrompt({ question }: { question: ReviewQuestion }) {
   if (question.kind === "grammar") {
     return (
       <>
-        <p className="text-sm font-bold text-ink/55">這個文法的中文意思是？</p>
+        <p className="text-sm font-bold text-ink/55">選出這個文法在句中的主要意思</p>
+        <p className="mt-1 text-xs font-bold leading-5 text-ink/45">
+          Choose the main meaning of this grammar pattern.
+        </p>
         <h2 className="mt-2 break-words text-3xl font-bold leading-tight text-ink">
           {question.grammar.pattern}
         </h2>
@@ -188,7 +191,13 @@ function AnswerDetail({
 
       {question.kind === "grammar" ? (
         <>
-          <p className="mt-3 text-sm leading-6 text-ink/75">{question.grammar.explanationZh}</p>
+          <p className="mt-2 text-sm leading-6 text-ink">
+            中文意思：<span className="font-bold">{question.grammar.meaningZh}</span>
+          </p>
+          <div className="mt-3 rounded-lg bg-white/75 px-3 py-3">
+            <p className="text-xs font-bold text-matcha">為什麼是這個答案？ / Why this answer?</p>
+            <p className="mt-2 text-sm leading-6 text-ink/75">{question.grammar.explanationZh}</p>
+          </div>
           <p className="mt-3 break-words text-sm font-bold leading-6 text-ink">{question.grammar.exampleJa}</p>
           <p className="mt-1 text-sm leading-6 text-ink/65">{question.grammar.exampleZh}</p>
         </>

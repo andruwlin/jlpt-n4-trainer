@@ -63,7 +63,10 @@ function buildGrammarQuestion(
       choices: buildChoices(grammarPoints, grammar, (item) => item.pattern),
       answer: grammar.pattern,
       blankSentence,
-      questionText: blankSentence === grammar.exampleJa ? "選出這句使用的文法" : "選出適合放入空格的文法",
+      questionText:
+        blankSentence === grammar.exampleJa
+          ? "選出讓整句日文自然成立的文法"
+          : "補上空格，使句子文法正確且自然",
     };
   }
 

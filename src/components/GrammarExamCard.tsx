@@ -51,7 +51,10 @@ export function GrammarExamCard({
 
       {question.type === "meaning-choice" ? (
         <>
-          <p className="text-sm font-bold text-ink/55">這個文法的中文意思是？</p>
+          <p className="text-sm font-bold text-ink/55">選出這個文法在句中的主要意思</p>
+          <p className="mt-1 text-xs font-bold leading-5 text-ink/45">
+            Choose the main meaning of this grammar pattern.
+          </p>
           <h2 className="mt-2 break-words text-3xl font-bold leading-tight text-ink">
             {question.grammar.pattern}
           </h2>
@@ -64,7 +67,11 @@ export function GrammarExamCard({
         </>
       ) : (
         <>
-          <p className="text-sm font-bold text-ink/55">{question.questionText}</p>
+          <p className="text-base font-bold leading-6 text-ink">{question.questionText}</p>
+          <p className="mt-1 text-xs font-bold leading-5 text-ink/50">
+            請注意空格前後的日文接續，不只看中文意思。Choose the grammar that makes the whole Japanese
+            sentence natural.
+          </p>
           <h2 className="mt-2 break-words text-2xl font-bold leading-relaxed text-ink">
             {question.blankSentence}
           </h2>
@@ -105,12 +112,16 @@ export function GrammarExamCard({
           <p className="mt-2 text-sm leading-6 text-ink">
             正確答案：<span className="font-bold">{question.answer}</span>
           </p>
-          {question.type === "sentence-fill" ? (
-            <p className="mt-2 text-sm leading-6 text-ink">
-              中文意思：<span className="font-bold">{question.grammar.meaningZh}</span>
-            </p>
-          ) : null}
-          <p className="mt-3 text-sm leading-6 text-ink/75">{question.grammar.explanationZh}</p>
+          <p className="mt-2 text-sm leading-6 text-ink">
+            中文意思：<span className="font-bold">{question.grammar.meaningZh}</span>
+          </p>
+          <div className="mt-3 rounded-lg bg-white/75 px-3 py-3">
+            <p className="text-xs font-bold text-matcha">為什麼是這個答案？ / Why this answer?</p>
+            <p className="mt-2 text-sm leading-6 text-ink/75">{question.grammar.explanationZh}</p>
+            {getGrammarConnectionNote(question) ? (
+              <p className="mt-2 text-sm leading-6 text-ink/65">{getGrammarConnectionNote(question)}</p>
+            ) : null}
+          </div>
           <p className="mt-3 break-words text-sm font-bold leading-6 text-ink">
             {question.grammar.exampleJa}
           </p>
@@ -133,4 +144,18 @@ export function GrammarExamCard({
       ) : null}
     </section>
   );
+}
+
+function getGrammarConnectionNote(question: GrammarExamQuestion) {
+  const normalizedPattern = question.grammar.pattern.replace(/（.+?）/g, "").trim();
+
+  if (question.type !== "sentence-fill") {
+    return undefined;
+  }
+
+  if (normalizedPattern === "ば" || normalizedPattern.includes("〜ば")) {
+    return "接續提示：「ば」常接在條件形後，例如 ある → あれば。「ので」通常接在普通形或丁寧形後，例如 あるので，不是 あれので。";
+  }
+
+  return "接續提示：這題要看空格前後的日文接續，補上後整句必須自然。Pay attention to the connection before and after the blank.";
 }
