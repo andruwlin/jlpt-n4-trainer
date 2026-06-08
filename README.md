@@ -6,6 +6,8 @@ Next.js + TypeScript + Tailwind CSS PWA sample app for JLPT-style vocabulary pra
 Vocabulary bank, grammar bank, and conjugation content are curated learning samples. They are designed to grow gradually and are not official complete JLPT lists.
 Progress Lite is saved locally in the browser with `localStorage`; there is no login, database, or cloud sync yet. Clearing browser data will clear progress.
 Weak Items Review Mode uses local weak items stored in `localStorage`; weak items are local to the browser/device and do not require login, database, or cloud sync.
+Daily Practice is a 20-question mixed practice session that can include local weak items, vocabulary, grammar, and conjugation. Progress remains local-only through `localStorage`.
+Grammar sentence-fill questions focus on making the whole Japanese sentence grammatically natural. Some questions require paying attention to the connection before and after the blank.
 
 Current curated content counts after v0-K:
 - Vocabulary: N5 300 / N4 300
@@ -29,11 +31,13 @@ Current curated content counts after v0-K:
 - Japanese sentence fill questions
 - Grammar Exam uses curated learning sample grammar data with fixed 20-question sessions
 - Grammar Exam is not an official complete JLPT grammar exam
+- Grammar sentence-fill questions ask learners to choose the grammar that makes the full Japanese sentence natural
 - Conjugation Exam uses curated learning sample conjugation data with fixed 20-question sessions
 - Conjugation Exam is not an official complete JLPT exam
 - Dashboard / Progress Lite tracks recent exam results, local accuracy, and weak items
 - Dashboard empty state explains that progress starts after completing an exam; progress is local-only
 - Weak Items Review Mode lets learners review local Vocabulary, Grammar, and Conjugation mistakes with four-choice questions
+- Daily Practice mixes weak items, vocabulary, grammar, and conjugation in one 20-question session
 - v0-J includes light UI polish for a more consistent mobile-first learning experience
 
 ## Tech

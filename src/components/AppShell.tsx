@@ -25,6 +25,9 @@ export function AppShell({ children, eyebrow = "JLPT N5 / N4", title, descriptio
           <Link className="rounded-full border border-ink/5 bg-paper px-3 py-2 transition hover:bg-sakura/25 hover:text-ink" href="/exam">
             Exam
           </Link>
+          <Link className="rounded-full border border-ink/5 bg-paper px-3 py-2 transition hover:bg-sakura/25 hover:text-ink" href="/daily-practice">
+            Daily Practice
+          </Link>
           <Link className="rounded-full border border-ink/5 bg-paper px-3 py-2 transition hover:bg-sakura/25 hover:text-ink" href="/grammar-exam">
             Grammar Exam
           </Link>

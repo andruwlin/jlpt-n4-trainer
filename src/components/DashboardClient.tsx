@@ -10,15 +10,17 @@ import {
   getTodayStats,
   getWeakItems,
   type ExamKind,
+  type ExamResultKind,
   type ExamResultRecord,
   type TodayStats,
   type WeakItemRecord,
 } from "@/lib/progress";
 
-const kindLabels: Record<ExamKind, string> = {
+const kindLabels: Record<ExamResultKind, string> = {
   vocabulary: "Vocabulary",
   grammar: "Grammar",
   conjugation: "Conjugation",
+  daily: "Daily Practice",
 };
 
 type DashboardSnapshot = {
@@ -76,14 +78,24 @@ export function DashboardClient() {
       {!hasResults ? <DashboardEmptyState /> : null}
 
       <section className="rounded-lg border border-white/80 bg-white/85 p-4 shadow-card sm:p-5">
-        <p className="text-sm font-bold text-matcha">Local Progress</p>
-        <p className="mt-2 text-sm leading-6 text-ink/70">
-          進度只會儲存在目前這台裝置與瀏覽器。清除瀏覽器資料或換裝置後，Dashboard 會重新開始。
-        </p>
-        <p className="mt-1 text-sm leading-6 text-ink/55">
-          Progress is saved locally in this browser. Clearing browser data or using another device will reset the
-          dashboard.
-        </p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-sm font-bold text-matcha">Local Progress</p>
+            <p className="mt-2 text-sm leading-6 text-ink/70">
+              進度只會儲存在目前這台裝置與瀏覽器。清除瀏覽器資料或換裝置後，Dashboard 會重新開始。
+            </p>
+            <p className="mt-1 text-sm leading-6 text-ink/55">
+              Progress is saved locally in this browser. Clearing browser data or using another device will reset the
+              dashboard.
+            </p>
+          </div>
+          {hasResults ? (
+            <Link href="/daily-practice" className="rounded-lg bg-ink px-4 py-3 text-sm font-bold text-white">
+              Daily Practice
+              <span className="block text-xs font-bold text-white/75">每日 20 題</span>
+            </Link>
+          ) : null}
+        </div>
       </section>
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -111,7 +123,7 @@ export function DashboardClient() {
           </button>
         </div>
         <div className="grid gap-3 md:grid-cols-3">
-          {(Object.keys(kindLabels) as ExamKind[]).map((kind) => (
+          {(["vocabulary", "grammar", "conjugation"] as ExamKind[]).map((kind) => (
             <AccuracyCard key={kind} label={kindLabels[kind]} value={snapshot.accuracyByKind[kind]} />
           ))}
         </div>
@@ -187,6 +199,7 @@ export function DashboardClient() {
 
 function DashboardEmptyState() {
   const ctas = [
+    { href: "/daily-practice", label: "Start Daily Practice", description: "混合 20 題" },
     { href: "/exam", label: "Start Vocabulary Exam", description: "單字 20 題" },
     { href: "/grammar-exam", label: "Start Grammar Exam", description: "文法 20 題" },
     { href: "/conjugation-exam", label: "Start Conjugation Exam", description: "活用 20 題" },
@@ -202,7 +215,7 @@ function DashboardEmptyState() {
         </p>
       </div>
 
-      <div className="mt-5 grid gap-3 md:grid-cols-3">
+      <div className="mt-5 grid gap-3 md:grid-cols-4">
         {ctas.map((cta) => (
           <Link
             key={cta.href}

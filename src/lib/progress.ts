@@ -1,9 +1,10 @@
 export type ExamKind = "vocabulary" | "grammar" | "conjugation";
+export type ExamResultKind = ExamKind | "daily";
 export type ProgressLevel = "N5" | "N4" | "Mixed";
 
 export type ExamResultRecord = {
   id: string;
-  kind: ExamKind;
+  kind: ExamResultKind;
   level: ProgressLevel;
   questionType: string;
   total: number;

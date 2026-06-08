@@ -18,6 +18,13 @@ const entries = [
     cta: "開始練習",
   },
   {
+    href: "/daily-practice",
+    title: "Daily Practice 每日練習",
+    label: "每日練習",
+    description: "20-question mixed practice，優先加入錯題，再混合單字、文法與活用。",
+    cta: "開始今日練習",
+  },
+  {
     href: "/grammar",
     title: "Grammar 文法教學",
     label: "文法",
