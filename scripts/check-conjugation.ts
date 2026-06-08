@@ -3,6 +3,18 @@ import type { ConjugationRule } from "../src/data/conjugation";
 
 const allowedLevels = new Set(["N5", "N4"]);
 const allowedCategories = new Set(["verb", "i-adjective", "na-adjective", "noun"]);
+const commonIAdjectiveBases = new Set([
+  "安い",
+  "高い",
+  "早い",
+  "新しい",
+  "古い",
+  "大きい",
+  "小さい",
+  "暑い",
+  "寒い",
+  "おいしい",
+]);
 const requiredStringFields = [
   "id",
   "level",
@@ -42,13 +54,27 @@ conjugationRules.forEach((rule, index) => {
   if (!Array.isArray(rule.examples) || rule.examples.length === 0) {
     errors.push(`${label}: examples must be a non-empty array`);
   } else {
+    let iAdjectiveLikeCount = 0;
+
     rule.examples.forEach((example, exampleIndex) => {
       for (const field of ["base", "result", "meaningZh"] as const) {
         if (typeof example[field] !== "string" || example[field].trim() === "") {
           errors.push(`${label}: example ${exampleIndex + 1} missing "${field}"`);
         }
       }
+
+      if (commonIAdjectiveBases.has(example.base)) {
+        iAdjectiveLikeCount += 1;
+
+        if (rule.category === "verb") {
+          errors.push(`${label}: verb rule example ${exampleIndex + 1} uses common i-adjective base "${example.base}"`);
+        }
+      }
     });
+
+    if (rule.category === "i-adjective" && rule.examples.length > 1 && iAdjectiveLikeCount === 0) {
+      errors.push(`${label}: i-adjective rule examples should include at least one clear i-adjective base`);
+    }
   }
 
   if (rule.id) {

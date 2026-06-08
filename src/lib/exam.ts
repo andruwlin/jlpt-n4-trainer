@@ -121,17 +121,7 @@ function buildQuestionTypes(mode: ExamMode, count: number): QuestionType[] {
 }
 
 function blankExample(word: JLPTWord) {
-  const target = word.kanji ?? word.kana;
-
-  if (word.exampleJa.includes(target)) {
-    return word.exampleJa.replace(target, "＿＿");
-  }
-
-  if (word.kanji && word.exampleJa.includes(word.kana)) {
-    return word.exampleJa.replace(word.kana, "＿＿");
-  }
-
-  return `＿＿：${word.exampleJa}`;
+  return word.exampleJa;
 }
 
 function shuffle<T>(items: T[]) {

@@ -124,13 +124,15 @@ function QuestionPrompt({ question }: { question: DailyPracticeQuestion }) {
 
   return (
     <>
-      <p className="text-sm font-bold text-ink/55">選出正確變化結果</p>
-      <h2 className="mt-2 break-words text-3xl font-bold leading-tight text-ink">
-        {question.example.base}
-      </h2>
-      <p className="mt-3 text-sm font-bold leading-6 text-ink/70">
-        Form: <span className="text-ink">{question.rule.form}</span>
+      <p className="text-sm font-bold text-ink/55">
+        請把「{question.example.base}」變成「{question.rule.form}」
       </p>
+      <p className="mt-1 text-xs font-bold leading-5 text-ink/45">
+        Choose the correct conjugated form of “{question.example.base}”.
+      </p>
+      <h2 className="mt-2 break-words text-3xl font-bold leading-tight text-ink">
+        {question.example.base} → ＿＿
+      </h2>
       <p className="mt-1 text-sm font-bold leading-6 text-ink/70">{question.rule.title}</p>
     </>
   );
@@ -183,11 +185,16 @@ function AnswerDetail({
           <p className="mt-2 text-sm leading-6 text-ink">
             意思：<span className="font-bold">{question.example.meaningZh}</span>
           </p>
-          <p className="mt-3 text-sm leading-6 text-ink/75">{question.rule.explanationZh}</p>
           <div className="mt-3 rounded-lg bg-white/70 px-3 py-3">
             <p className="text-xs font-bold text-ink/50">Rule</p>
             <p className="mt-1 break-words text-sm font-bold leading-6 text-ink">{question.rule.rule}</p>
           </div>
+          <p className="mt-3 text-sm leading-6 text-ink/75">{question.rule.explanationZh}</p>
+          {getConjugationNote(question) ? (
+            <p className="mt-2 rounded-lg bg-white/75 px-3 py-3 text-sm leading-6 text-ink/70">
+              {getConjugationNote(question)}
+            </p>
+          ) : null}
           {question.example.exampleJa ? (
             <>
               <p className="mt-3 break-words text-sm font-bold leading-6 text-ink">
@@ -217,4 +224,16 @@ function AnswerDetail({
       </button>
     </div>
   );
+}
+
+function getConjugationNote(question: DailyPracticeQuestion) {
+  if (question.kind !== "conjugation") {
+    return undefined;
+  }
+
+  if (question.rule.category === "i-adjective" && question.rule.form.includes("ば")) {
+    return `い形容詞のば形：去掉「い」，加上「ければ」。${question.example.base} → ${question.example.result}`;
+  }
+
+  return undefined;
 }

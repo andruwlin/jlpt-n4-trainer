@@ -8,6 +8,8 @@ Progress Lite is saved locally in the browser with `localStorage`; there is no l
 Weak Items Review Mode uses local weak items stored in `localStorage`; weak items are local to the browser/device and do not require login, database, or cloud sync.
 Daily Practice is a 20-question mixed practice session that can include local weak items, vocabulary, grammar, and conjugation. Progress remains local-only through `localStorage`.
 Grammar sentence-fill questions focus on making the whole Japanese sentence grammatically natural. Some questions require paying attention to the connection before and after the blank.
+Conjugation questions ask learners to transform a base word into a target form, so learners should pay attention to word type such as verb vs い-adjective.
+Vocabulary example questions may ask learners to identify the dictionary form of a word used in a sentence; this is different from directly filling the exact conjugated form into the sentence.
 
 Current curated content counts after v0-K:
 - Vocabulary: N5 300 / N4 300
