@@ -26,8 +26,10 @@ const requiredStringFields = [
 ] satisfies Array<keyof ConjugationRule>;
 
 const errors: string[] = [];
+const warnings: string[] = [];
 const seenIds = new Map<string, number>();
 const seenTitles = new Map<string, string>();
+const seenExampleSentences = new Map<string, string>();
 
 conjugationRules.forEach((rule, index) => {
   const label = rule.id || `conjugation rule at index ${index}`;
@@ -69,6 +71,14 @@ conjugationRules.forEach((rule, index) => {
         if (rule.category === "verb") {
           errors.push(`${label}: verb rule example ${exampleIndex + 1} uses common i-adjective base "${example.base}"`);
         }
+      }
+
+      if (example.exampleJa) {
+        const previousExampleId = seenExampleSentences.get(example.exampleJa.trim());
+        if (previousExampleId) {
+          warnings.push(`${label}: repeated exampleJa in example ${exampleIndex + 1} also used by ${previousExampleId}`);
+        }
+        seenExampleSentences.set(example.exampleJa.trim(), `${label} example ${exampleIndex + 1}`);
       }
     });
 
@@ -114,6 +124,12 @@ if (errors.length > 0) {
 }
 
 console.log("Conjugation data check passed.");
+if (warnings.length > 0) {
+  console.warn("Conjugation data warnings:");
+  for (const warning of warnings) {
+    console.warn(`- ${warning}`);
+  }
+}
 console.log(`Total: ${conjugationRules.length}`);
 console.log(`N5: ${counts.levels.N5}`);
 console.log(`N4: ${counts.levels.N4}`);

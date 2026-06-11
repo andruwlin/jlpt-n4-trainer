@@ -13,7 +13,14 @@ import {
   type DailyPracticeLevel,
   type DailyPracticeQuestion,
 } from "@/lib/dailyPractice";
-import { getProgress, recordWeakItem, saveExamResult, type WeakItemRecord } from "@/lib/progress";
+import {
+  getProgress,
+  getRecentlySeen,
+  recordRecentlySeen,
+  recordWeakItem,
+  saveExamResult,
+  type WeakItemRecord,
+} from "@/lib/progress";
 
 type DailyPracticeRunnerProps = {
   words: JLPTWord[];
@@ -51,6 +58,7 @@ export function DailyPracticeRunner({ words, grammarPoints, conjugationRules }: 
       conjugationRules,
       weakItems: latestWeakItems,
       questionCount: 20,
+      recentlySeenSourceIds: getRecentlySeen().map((item) => item.sourceId),
     });
 
     setWeakItems(latestWeakItems);
@@ -69,6 +77,7 @@ export function DailyPracticeRunner({ words, grammarPoints, conjugationRules }: 
     }
 
     setSelectedAnswer(answer);
+    recordDailyRecentlySeen(question);
     setAnsweredCount((count) => count + 1);
     if (answer === question.answer) {
       setCorrectCount((count) => count + 1);
@@ -199,6 +208,20 @@ function recordDailyWeakItem(question: DailyPracticeQuestion) {
     label: `${question.example.base} → ${question.example.result} / ${question.rule.title}`,
     level: question.rule.level,
   });
+}
+
+function recordDailyRecentlySeen(question: DailyPracticeQuestion) {
+  if (question.kind === "vocabulary") {
+    recordRecentlySeen({ kind: "vocabulary", sourceId: question.word.id });
+    return;
+  }
+
+  if (question.kind === "grammar") {
+    recordRecentlySeen({ kind: "grammar", sourceId: question.grammar.id });
+    return;
+  }
+
+  recordRecentlySeen({ kind: "conjugation", sourceId: question.sourceId });
 }
 
 function DailyResultSummary({

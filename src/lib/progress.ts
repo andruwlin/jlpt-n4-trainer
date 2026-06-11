@@ -24,10 +24,17 @@ export type WeakItemRecord = {
   lastWrongAt: string;
 };
 
+export type RecentlySeenItem = {
+  kind: ExamKind;
+  sourceId: string;
+  seenAt: string;
+};
+
 export type LearningProgressState = {
   version: 1;
   results: ExamResultRecord[];
   weakItems: WeakItemRecord[];
+  recentlySeen?: RecentlySeenItem[];
 };
 
 export type TodayStats = {
@@ -39,11 +46,13 @@ export type TodayStats = {
 
 const STORAGE_KEY = "jlpt-trainer-progress-v1";
 const MAX_RESULTS = 100;
+const MAX_RECENTLY_SEEN = 250;
 
 const emptyProgress: LearningProgressState = {
   version: 1,
   results: [],
   weakItems: [],
+  recentlySeen: [],
 };
 
 export function getProgress(): LearningProgressState {
@@ -63,7 +72,10 @@ export function getProgress(): LearningProgressState {
       return emptyProgress;
     }
 
-    return parsed;
+    return {
+      ...parsed,
+      recentlySeen: Array.isArray(parsed.recentlySeen) ? parsed.recentlySeen : [],
+    };
   } catch {
     return emptyProgress;
   }
@@ -109,6 +121,29 @@ export function recordWeakItem(item: Omit<WeakItemRecord, "id" | "wrongCount" | 
       ];
 
   saveProgress({ ...progress, weakItems: nextWeakItems });
+}
+
+export function recordRecentlySeen(item: Omit<RecentlySeenItem, "seenAt">) {
+  const progress = getProgress();
+  const now = new Date().toISOString();
+  const recentlySeen = progress.recentlySeen ?? [];
+  const nextRecentlySeen = [
+    { ...item, seenAt: now },
+    ...recentlySeen.filter(
+      (seenItem) => !(seenItem.kind === item.kind && seenItem.sourceId === item.sourceId),
+    ),
+  ].slice(0, MAX_RECENTLY_SEEN);
+
+  saveProgress({ ...progress, recentlySeen: nextRecentlySeen });
+}
+
+export function getRecentlySeen(kind?: ExamKind) {
+  const recentlySeen = getProgress().recentlySeen ?? [];
+  return kind ? recentlySeen.filter((item) => item.kind === kind) : recentlySeen;
+}
+
+export function getRecentlySeenSourceIds(kind: ExamKind) {
+  return getRecentlySeen(kind).map((item) => item.sourceId);
 }
 
 export function clearProgress() {

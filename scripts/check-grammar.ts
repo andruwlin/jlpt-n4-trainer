@@ -14,8 +14,11 @@ const requiredStringFields = [
 ] satisfies Array<keyof GrammarPoint>;
 
 const errors: string[] = [];
+const warnings: string[] = [];
 const seenIds = new Map<string, number>();
 const seenPatterns = new Map<string, string>();
+const seenExamples = new Map<string, string>();
+const meaningCounts = new Map<string, number>();
 
 grammarPoints.forEach((grammar, index) => {
   const label = grammar.id || `grammar at index ${index}`;
@@ -49,7 +52,25 @@ grammarPoints.forEach((grammar, index) => {
     errors.push(`${label}: duplicate pattern also used by ${previousId}`);
   }
   seenPatterns.set(patternKey, label);
+
+  const exampleKey = grammar.exampleJa.trim();
+  const previousExampleId = seenExamples.get(exampleKey);
+  if (exampleKey && previousExampleId) {
+    warnings.push(`${label}: repeated exampleJa also used by ${previousExampleId}`);
+  }
+  seenExamples.set(exampleKey, label);
+
+  const meaningKey = grammar.meaningZh.trim();
+  if (meaningKey) {
+    meaningCounts.set(meaningKey, (meaningCounts.get(meaningKey) ?? 0) + 1);
+  }
 });
+
+for (const [meaning, count] of meaningCounts) {
+  if (count >= 5) {
+    warnings.push(`meaningZh "${meaning}" appears ${count} times; review for overly similar grammar points`);
+  }
+}
 
 const counts = grammarPoints.reduce(
   (result, grammar) => {
@@ -73,6 +94,12 @@ if (errors.length > 0) {
 }
 
 console.log("Grammar data check passed.");
+if (warnings.length > 0) {
+  console.warn("Grammar data warnings:");
+  for (const warning of warnings) {
+    console.warn(`- ${warning}`);
+  }
+}
 console.log(`Total: ${grammarPoints.length}`);
 console.log(`N5: ${counts.N5}`);
 console.log(`N4: ${counts.N4}`);

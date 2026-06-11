@@ -20,10 +20,12 @@ type GenerateConjugationExamSessionInput = {
   selectedCategory: ConjugationExamCategory;
   selectedQuestionType: ConjugationExamMode;
   questionCount?: number;
+  recentlySeenSourceIds?: string[];
 };
 
 type ExampleItem = {
   key: string;
+  sourceId: string;
   rule: ConjugationRule;
   example: ConjugationRule["examples"][number];
 };
@@ -34,15 +36,16 @@ export function generateConjugationExamSession({
   selectedCategory,
   selectedQuestionType,
   questionCount = 20,
+  recentlySeenSourceIds = [],
 }: GenerateConjugationExamSessionInput): ConjugationExamQuestion[] {
   const rules = getRulesForSelection(conjugationRules, selectedLevel, selectedCategory);
-  const items = shuffle(flattenExamples(rules));
+  const items = sortByRecentlySeen(flattenExamples(rules), (item) => item.sourceId, recentlySeenSourceIds);
   const questionTypes = buildQuestionTypes(selectedQuestionType, questionCount);
   const questions: ConjugationExamQuestion[] = [];
-  const usedKeys = new Set<string>();
+  const usedSourceIds = new Set<string>();
 
   for (const type of questionTypes) {
-    const item = items.find((candidate) => !usedKeys.has(candidate.key) && canBuildQuestion(rules, candidate, type));
+    const item = items.find((candidate) => !usedSourceIds.has(candidate.sourceId) && canBuildQuestion(rules, candidate, type));
 
     if (!item) {
       continue;
@@ -53,7 +56,7 @@ export function generateConjugationExamSession({
       continue;
     }
 
-    usedKeys.add(item.key);
+    usedSourceIds.add(item.sourceId);
     questions.push(question);
 
     if (questions.length >= questionCount) {
@@ -80,6 +83,7 @@ function flattenExamples(rules: ConjugationRule[]): ExampleItem[] {
   return rules.flatMap((rule) =>
     rule.examples.map((example, index) => ({
       key: `${rule.id}-${example.base}-${example.result}-${index}`,
+      sourceId: `${rule.id}-${example.base}-${example.result}`,
       rule,
       example,
     })),
@@ -160,4 +164,13 @@ function buildQuestionTypes(mode: ConjugationExamMode, count: number): Conjugati
 
 function shuffle<T>(items: T[]) {
   return [...items].sort(() => Math.random() - 0.5);
+}
+
+function sortByRecentlySeen<T>(items: T[], getSourceId: (item: T) => string, recentlySeenSourceIds: string[]) {
+  const recentlySeen = new Set(recentlySeenSourceIds);
+  const shuffled = shuffle(items);
+  return [
+    ...shuffled.filter((item) => !recentlySeen.has(getSourceId(item))),
+    ...shuffled.filter((item) => recentlySeen.has(getSourceId(item))),
+  ];
 }

@@ -48,6 +48,7 @@ type GenerateReviewSessionInput = {
   dataBanks: ReviewDataBanks;
   kind: ReviewKindFilter;
   questionLimit?: number;
+  recentlySeenSourceIds?: string[];
 };
 
 type ConjugationExampleItem = {
@@ -74,16 +75,27 @@ export function generateReviewSession({
   dataBanks,
   kind,
   questionLimit = REVIEW_QUESTION_LIMIT,
+  recentlySeenSourceIds = [],
 }: GenerateReviewSessionInput): ReviewQuestion[] {
-  const reviewableWeakItems = shuffle(kind === "all" ? weakItems : weakItems.filter((item) => item.kind === kind));
+  const reviewableWeakItems = sortByRecentlySeen(
+    kind === "all" ? weakItems : weakItems.filter((item) => item.kind === kind),
+    (item) => item.sourceId,
+    recentlySeenSourceIds,
+  );
   const questions: ReviewQuestion[] = [];
+  const usedSourceIds = new Set<string>();
 
   for (const weakItem of reviewableWeakItems) {
+    if (usedSourceIds.has(`${weakItem.kind}:${weakItem.sourceId}`)) {
+      continue;
+    }
+
     const question = buildReviewQuestion(weakItem, dataBanks, questions.length + 1);
     if (!question) {
       continue;
     }
 
+    usedSourceIds.add(`${weakItem.kind}:${weakItem.sourceId}`);
     questions.push(question);
     if (questions.length >= questionLimit) {
       break;
@@ -221,4 +233,13 @@ function buildChoices<T>(items: T[], answerItem: T, getValue: (item: T) => strin
 
 function shuffle<T>(items: T[]) {
   return [...items].sort(() => Math.random() - 0.5);
+}
+
+function sortByRecentlySeen<T>(items: T[], getSourceId: (item: T) => string, recentlySeenSourceIds: string[]) {
+  const recentlySeen = new Set(recentlySeenSourceIds);
+  const shuffled = shuffle(items);
+  return [
+    ...shuffled.filter((item) => !recentlySeen.has(getSourceId(item))),
+    ...shuffled.filter((item) => recentlySeen.has(getSourceId(item))),
+  ];
 }

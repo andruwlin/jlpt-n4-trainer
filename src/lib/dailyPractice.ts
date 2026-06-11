@@ -45,6 +45,7 @@ type GenerateDailyPracticeSessionInput = {
   conjugationRules: ConjugationRule[];
   weakItems: WeakItemRecord[];
   questionCount?: number;
+  recentlySeenSourceIds?: string[];
 };
 
 type ConjugationExampleItem = {
@@ -62,6 +63,7 @@ export function generateDailyPracticeSession({
   conjugationRules,
   weakItems,
   questionCount = 20,
+  recentlySeenSourceIds = [],
 }: GenerateDailyPracticeSessionInput): DailyPracticeQuestion[] {
   const questions: DailyPracticeQuestion[] = [];
   const usedSourceIds = new Set<string>();
@@ -78,6 +80,7 @@ export function generateDailyPracticeSession({
     conjugationRules: pools.conjugationRules,
     usedSourceIds,
     limit: Math.min(WEAK_ITEM_LIMIT, questionCount),
+    recentlySeenSourceIds,
   });
 
   questions.push(...weakQuestions);
@@ -87,15 +90,15 @@ export function generateDailyPracticeSession({
     ? { vocabulary: 6, grammar: 4, conjugation: 2 }
     : { vocabulary: 10, grammar: 6, conjugation: 4 };
 
-  addNormalQuestions("vocabulary", targetMix.vocabulary, questions, usedSourceIds, pools);
-  addNormalQuestions("grammar", targetMix.grammar, questions, usedSourceIds, pools);
-  addNormalQuestions("conjugation", targetMix.conjugation, questions, usedSourceIds, pools);
+  addNormalQuestions("vocabulary", targetMix.vocabulary, questions, usedSourceIds, pools, recentlySeenSourceIds);
+  addNormalQuestions("grammar", targetMix.grammar, questions, usedSourceIds, pools, recentlySeenSourceIds);
+  addNormalQuestions("conjugation", targetMix.conjugation, questions, usedSourceIds, pools, recentlySeenSourceIds);
 
   while (questions.length < questionCount) {
     const before = questions.length;
-    addNormalQuestions("vocabulary", 1, questions, usedSourceIds, pools);
-    addNormalQuestions("grammar", 1, questions, usedSourceIds, pools);
-    addNormalQuestions("conjugation", 1, questions, usedSourceIds, pools);
+    addNormalQuestions("vocabulary", 1, questions, usedSourceIds, pools, recentlySeenSourceIds);
+    addNormalQuestions("grammar", 1, questions, usedSourceIds, pools, recentlySeenSourceIds);
+    addNormalQuestions("conjugation", 1, questions, usedSourceIds, pools, recentlySeenSourceIds);
 
     if (questions.length === before) {
       break;
@@ -115,6 +118,7 @@ function buildWeakQuestions({
   conjugationRules,
   usedSourceIds,
   limit,
+  recentlySeenSourceIds,
 }: {
   weakItems: WeakItemRecord[];
   words: JLPTWord[];
@@ -122,6 +126,7 @@ function buildWeakQuestions({
   conjugationRules: ConjugationRule[];
   usedSourceIds: Set<string>;
   limit: number;
+  recentlySeenSourceIds: string[];
 }) {
   const questions: DailyPracticeQuestion[] = [];
   const sortedWeakItems = [...weakItems].sort((a, b) => {
@@ -132,7 +137,7 @@ function buildWeakQuestions({
     return new Date(b.lastWrongAt).getTime() - new Date(a.lastWrongAt).getTime();
   });
 
-  for (const weakItem of sortedWeakItems) {
+  for (const weakItem of sortByRecentlySeen(sortedWeakItems, (item) => item.sourceId, recentlySeenSourceIds)) {
     if (questions.length >= limit) {
       break;
     }
@@ -179,9 +184,10 @@ function addNormalQuestions(
     grammarPoints: GrammarPoint[];
     conjugationRules: ConjugationRule[];
   },
+  recentlySeenSourceIds: string[],
 ) {
   for (let index = 0; index < count; index += 1) {
-    const question = buildNormalQuestion(kind, pools, usedSourceIds);
+    const question = buildNormalQuestion(kind, pools, usedSourceIds, recentlySeenSourceIds);
     if (!question) {
       return;
     }
@@ -199,18 +205,19 @@ function buildNormalQuestion(
     conjugationRules: ConjugationRule[];
   },
   usedSourceIds: Set<string>,
+  recentlySeenSourceIds: string[],
 ) {
   if (kind === "vocabulary") {
-    const word = shuffle(pools.words).find((item) => !usedSourceIds.has(item.id));
+    const word = sortByRecentlySeen(pools.words, (item) => item.id, recentlySeenSourceIds).find((item) => !usedSourceIds.has(item.id));
     return word ? buildVocabularyQuestion(word, pools.words, false) : undefined;
   }
 
   if (kind === "grammar") {
-    const grammar = shuffle(pools.grammarPoints).find((item) => !usedSourceIds.has(item.id));
+    const grammar = sortByRecentlySeen(pools.grammarPoints, (item) => item.id, recentlySeenSourceIds).find((item) => !usedSourceIds.has(item.id));
     return grammar ? buildGrammarQuestion(grammar, pools.grammarPoints, false) : undefined;
   }
 
-  const examples = shuffle(flattenConjugationExamples(pools.conjugationRules));
+  const examples = sortByRecentlySeen(flattenConjugationExamples(pools.conjugationRules), (item) => item.sourceId, recentlySeenSourceIds);
   const item = examples.find((candidate) => !usedSourceIds.has(candidate.sourceId));
   return item ? buildConjugationQuestion(item, pools.conjugationRules, false) : undefined;
 }
@@ -315,4 +322,13 @@ function filterByLevel<T extends { level: JLPTLevel | GrammarLevel | Conjugation
 
 function shuffle<T>(items: T[]) {
   return [...items].sort(() => Math.random() - 0.5);
+}
+
+function sortByRecentlySeen<T>(items: T[], getSourceId: (item: T) => string, recentlySeenSourceIds: string[]) {
+  const recentlySeen = new Set(recentlySeenSourceIds);
+  const shuffled = shuffle(items);
+  return [
+    ...shuffled.filter((item) => !recentlySeen.has(getSourceId(item))),
+    ...shuffled.filter((item) => recentlySeen.has(getSourceId(item))),
+  ];
 }

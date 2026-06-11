@@ -13,7 +13,7 @@ import {
   type ConjugationExamMode,
   type ConjugationExamQuestion,
 } from "@/lib/conjugationExam";
-import { recordWeakItem, saveExamResult } from "@/lib/progress";
+import { getRecentlySeenSourceIds, recordRecentlySeen, recordWeakItem, saveExamResult } from "@/lib/progress";
 
 type ConjugationExamRunnerProps = {
   conjugationRules: ConjugationRule[];
@@ -43,6 +43,7 @@ export function ConjugationExamRunner({ conjugationRules }: ConjugationExamRunne
       selectedCategory: category,
       selectedQuestionType: mode,
       questionCount: 20,
+      recentlySeenSourceIds: getRecentlySeenSourceIds("conjugation"),
     });
 
     setQuestions(nextQuestions);
@@ -64,6 +65,10 @@ export function ConjugationExamRunner({ conjugationRules }: ConjugationExamRunne
     }
 
     setSelectedAnswer(answer);
+    recordRecentlySeen({
+      kind: "conjugation",
+      sourceId: `${question.rule.id}-${question.example.base}-${question.example.result}`,
+    });
     setAnsweredCount((count) => count + 1);
     if (answer === question.answer) {
       setCorrectCount((count) => count + 1);

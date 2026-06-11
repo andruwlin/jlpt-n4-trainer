@@ -10,7 +10,7 @@ import {
   type ExamMode,
   type ExamQuestion,
 } from "@/lib/exam";
-import { recordWeakItem, saveExamResult } from "@/lib/progress";
+import { getRecentlySeenSourceIds, recordRecentlySeen, recordWeakItem, saveExamResult } from "@/lib/progress";
 import { useState } from "react";
 
 type ExamRunnerProps = {
@@ -38,6 +38,7 @@ export function ExamRunner({ words }: ExamRunnerProps) {
       selectedLevel: level,
       selectedQuestionType: mode,
       questionCount: 20,
+      recentlySeenSourceIds: getRecentlySeenSourceIds("vocabulary"),
     });
 
     setQuestions(nextQuestions);
@@ -54,6 +55,7 @@ export function ExamRunner({ words }: ExamRunnerProps) {
     }
 
     setSelectedAnswer(answer);
+    recordRecentlySeen({ kind: "vocabulary", sourceId: question.word.id });
     setAnsweredCount((count) => count + 1);
     if (answer === question.answer) {
       setCorrectCount((count) => count + 1);

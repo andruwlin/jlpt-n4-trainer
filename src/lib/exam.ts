@@ -19,6 +19,7 @@ type GenerateExamSessionInput = {
   selectedLevel: ExamLevel;
   selectedQuestionType: ExamMode;
   questionCount?: number;
+  recentlySeenSourceIds?: string[];
 };
 
 export function getWordsForLevel(words: JLPTWord[], level: ExamLevel) {
@@ -34,10 +35,11 @@ export function generateExamSession({
   selectedLevel,
   selectedQuestionType,
   questionCount = 20,
+  recentlySeenSourceIds = [],
 }: GenerateExamSessionInput): ExamQuestion[] {
   const pool = getWordsForLevel(words, selectedLevel);
   const total = Math.min(questionCount, pool.length);
-  const sessionWords = pickSessionWords(pool, total);
+  const sessionWords = pickSessionWords(pool, total, recentlySeenSourceIds);
   const questionTypes = buildQuestionTypes(selectedQuestionType, total);
 
   return sessionWords.map((word, index) =>
@@ -95,14 +97,16 @@ function buildChoices(
   return shuffle([answer, ...distractors]);
 }
 
-function pickSessionWords(words: JLPTWord[], count: number) {
+function pickSessionWords(words: JLPTWord[], count: number, recentlySeenSourceIds: string[]) {
+  const sortedWords = sortByRecentlySeen(words, (word) => word.id, recentlySeenSourceIds);
+
   if (count <= words.length) {
-    return shuffle(words).slice(0, count);
+    return sortedWords.slice(0, count);
   }
 
   const selected: JLPTWord[] = [];
   while (selected.length < count) {
-    selected.push(...shuffle(words).slice(0, count - selected.length));
+    selected.push(...sortedWords.slice(0, count - selected.length));
   }
 
   return selected;
@@ -126,4 +130,13 @@ function blankExample(word: JLPTWord) {
 
 function shuffle<T>(items: T[]) {
   return [...items].sort(() => Math.random() - 0.5);
+}
+
+function sortByRecentlySeen<T>(items: T[], getSourceId: (item: T) => string, recentlySeenSourceIds: string[]) {
+  const recentlySeen = new Set(recentlySeenSourceIds);
+  const shuffled = shuffle(items);
+  return [
+    ...shuffled.filter((item) => !recentlySeen.has(getSourceId(item))),
+    ...shuffled.filter((item) => recentlySeen.has(getSourceId(item))),
+  ];
 }

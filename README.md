@@ -7,22 +7,23 @@ Vocabulary bank, grammar bank, and conjugation content are curated learning samp
 Progress Lite is saved locally in the browser with `localStorage`; there is no login, database, or cloud sync yet. Clearing browser data will clear progress.
 Weak Items Review Mode uses local weak items stored in `localStorage`; weak items are local to the browser/device and do not require login, database, or cloud sync.
 Daily Practice is a 20-question mixed practice session that can include local weak items, vocabulary, grammar, and conjugation. Progress remains local-only through `localStorage`.
+Anti-repetition is lightweight and local-only: recent question source IDs are saved in `localStorage` to reduce obvious repeats across short practice sessions.
 Grammar sentence-fill questions focus on making the whole Japanese sentence grammatically natural. Some questions require paying attention to the connection before and after the blank.
 Conjugation questions ask learners to transform a base word into a target form, so learners should pay attention to word type such as verb vs い-adjective.
 Vocabulary example questions may ask learners to identify the dictionary form of a word used in a sentence; this is different from directly filling the exact conjugated form into the sentence.
 
-Current curated content counts after v0-K:
-- Vocabulary: N5 300 / N4 300
-- Grammar: N5 45 / N4 45
-- Conjugation: 38 total rules
+Current curated content counts after v0-N:
+- Vocabulary: N5 380 / N4 380
+- Grammar: N5 55 / N4 55
+- Conjugation: 47 total rules
 
 ## Features
 
 - Home dashboard with three entries: Vocabulary, Exam, Progress coming soon
 - Vocabulary browser with level filter: All / N5 / N4
 - Search by kana, kanji, or Chinese meaning
-- 600 local sample words: N5 300 + N4 300
-- 90 local sample grammar points: N5 45 + N4 45
+- 760 local sample words: N5 380 + N4 380
+- 110 local sample grammar points: N5 55 + N4 55
 - Conjugation Teaching page with curated N5 / N4 verb, adjective, and noun form samples
 - Word cards show kana, kanji, Traditional Chinese meaning, part of speech, Japanese example, and Chinese translation
 - Grammar cards show pattern, meaning, structure, explanation, examples, tags, and example speech

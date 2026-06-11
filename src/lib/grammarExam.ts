@@ -19,6 +19,7 @@ type GenerateGrammarExamSessionInput = {
   selectedLevel: GrammarExamLevel;
   selectedQuestionType: GrammarExamMode;
   questionCount?: number;
+  recentlySeenSourceIds?: string[];
 };
 
 export function getGrammarForLevel(grammarPoints: GrammarPoint[], level: GrammarExamLevel) {
@@ -34,10 +35,11 @@ export function generateGrammarExamSession({
   selectedLevel,
   selectedQuestionType,
   questionCount = 20,
+  recentlySeenSourceIds = [],
 }: GenerateGrammarExamSessionInput): GrammarExamQuestion[] {
   const pool = getGrammarForLevel(grammarPoints, selectedLevel);
   const total = Math.min(questionCount, pool.length);
-  const sessionGrammar = shuffle(pool).slice(0, total);
+  const sessionGrammar = sortByRecentlySeen(pool, (grammar) => grammar.id, recentlySeenSourceIds).slice(0, total);
   const questionTypes = buildQuestionTypes(selectedQuestionType, total);
 
   return sessionGrammar.map((grammar, index) =>
@@ -133,4 +135,13 @@ function buildQuestionTypes(mode: GrammarExamMode, count: number): GrammarQuesti
 
 function shuffle<T>(items: T[]) {
   return [...items].sort(() => Math.random() - 0.5);
+}
+
+function sortByRecentlySeen<T>(items: T[], getSourceId: (item: T) => string, recentlySeenSourceIds: string[]) {
+  const recentlySeen = new Set(recentlySeenSourceIds);
+  const shuffled = shuffle(items);
+  return [
+    ...shuffled.filter((item) => !recentlySeen.has(getSourceId(item))),
+    ...shuffled.filter((item) => recentlySeen.has(getSourceId(item))),
+  ];
 }

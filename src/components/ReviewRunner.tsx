@@ -11,7 +11,7 @@ import {
   getReviewableWeakItems,
   REVIEW_QUESTION_LIMIT,
 } from "@/lib/review";
-import { getProgress, type LearningProgressState } from "@/lib/progress";
+import { getProgress, getRecentlySeen, recordRecentlySeen, type LearningProgressState } from "@/lib/progress";
 
 type ReviewRunnerProps = {
   dataBanks: ReviewDataBanks;
@@ -46,6 +46,7 @@ export function ReviewRunner({ dataBanks }: ReviewRunnerProps) {
         dataBanks,
         kind,
         questionLimit: REVIEW_QUESTION_LIMIT,
+        recentlySeenSourceIds: getRecentlySeen().map((item) => item.sourceId),
       }),
     [dataBanks, kind, progress.weakItems],
   );
@@ -61,6 +62,7 @@ export function ReviewRunner({ dataBanks }: ReviewRunnerProps) {
       dataBanks,
       kind,
       questionLimit: REVIEW_QUESTION_LIMIT,
+      recentlySeenSourceIds: getRecentlySeen().map((item) => item.sourceId),
     });
 
     setQuestions(nextQuestions);
@@ -78,6 +80,7 @@ export function ReviewRunner({ dataBanks }: ReviewRunnerProps) {
     }
 
     setSelectedAnswer(answer);
+    recordRecentlySeen({ kind: question.kind, sourceId: question.weakItem.sourceId });
     setAnsweredCount((count) => count + 1);
     if (answer === question.answer) {
       setCorrectCount((count) => count + 1);

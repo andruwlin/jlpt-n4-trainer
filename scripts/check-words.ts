@@ -13,8 +13,11 @@ const requiredStringFields = [
 ] satisfies Array<keyof JLPTWord>;
 
 const errors: string[] = [];
+const warnings: string[] = [];
 const seenIds = new Map<string, number>();
 const seenWordKeys = new Map<string, string>();
+const seenExamples = new Map<string, string>();
+const meaningCounts = new Map<string, number>();
 
 words.forEach((word, index) => {
   const label = word.id || `word at index ${index}`;
@@ -48,7 +51,25 @@ words.forEach((word, index) => {
     errors.push(`${label}: duplicate kana + kanji pair also used by ${previousId}`);
   }
   seenWordKeys.set(wordKey, label);
+
+  const exampleKey = word.exampleJa.trim();
+  const previousExampleId = seenExamples.get(exampleKey);
+  if (exampleKey && previousExampleId) {
+    warnings.push(`${label}: repeated exampleJa also used by ${previousExampleId}`);
+  }
+  seenExamples.set(exampleKey, label);
+
+  const meaningKey = word.meaningZh.trim();
+  if (meaningKey) {
+    meaningCounts.set(meaningKey, (meaningCounts.get(meaningKey) ?? 0) + 1);
+  }
 });
+
+for (const [meaning, count] of meaningCounts) {
+  if (count >= 12) {
+    warnings.push(`meaningZh "${meaning}" appears ${count} times; review for overly similar entries`);
+  }
+}
 
 const counts = words.reduce(
   (result, word) => {
@@ -72,6 +93,12 @@ if (errors.length > 0) {
 }
 
 console.log("Word data check passed.");
+if (warnings.length > 0) {
+  console.warn("Word data warnings:");
+  for (const warning of warnings) {
+    console.warn(`- ${warning}`);
+  }
+}
 console.log(`Total: ${words.length}`);
 console.log(`N5: ${counts.N5}`);
 console.log(`N4: ${counts.N4}`);

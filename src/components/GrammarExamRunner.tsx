@@ -12,7 +12,7 @@ import {
   type GrammarExamMode,
   type GrammarExamQuestion,
 } from "@/lib/grammarExam";
-import { recordWeakItem, saveExamResult } from "@/lib/progress";
+import { getRecentlySeenSourceIds, recordRecentlySeen, recordWeakItem, saveExamResult } from "@/lib/progress";
 
 type GrammarExamRunnerProps = {
   grammarPoints: GrammarPoint[];
@@ -39,6 +39,7 @@ export function GrammarExamRunner({ grammarPoints }: GrammarExamRunnerProps) {
       selectedLevel: level,
       selectedQuestionType: mode,
       questionCount: 20,
+      recentlySeenSourceIds: getRecentlySeenSourceIds("grammar"),
     });
 
     setQuestions(nextQuestions);
@@ -55,6 +56,7 @@ export function GrammarExamRunner({ grammarPoints }: GrammarExamRunnerProps) {
     }
 
     setSelectedAnswer(answer);
+    recordRecentlySeen({ kind: "grammar", sourceId: question.grammar.id });
     setAnsweredCount((count) => count + 1);
     if (answer === question.answer) {
       setCorrectCount((count) => count + 1);
