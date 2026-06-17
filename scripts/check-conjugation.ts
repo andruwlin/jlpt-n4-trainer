@@ -55,6 +55,8 @@ conjugationRules.forEach((rule, index) => {
 
   if (!Array.isArray(rule.examples) || rule.examples.length === 0) {
     errors.push(`${label}: examples must be a non-empty array`);
+  } else if (rule.examples.length < 2) {
+    errors.push(`${label}: examples must include at least 2 items`);
   } else {
     let iAdjectiveLikeCount = 0;
 

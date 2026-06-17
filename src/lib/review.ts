@@ -1,9 +1,16 @@
 import type { ConjugationRule } from "@/data/conjugation";
 import type { GrammarPoint } from "@/data/grammar";
 import type { JLPTWord } from "@/data/words";
-import type { ExamKind, LearningProgressState, WeakItemRecord } from "@/lib/progress";
+import {
+  getDueWeakItems,
+  getWeakItemPriority,
+  type ExamKind,
+  type LearningProgressState,
+  type WeakItemRecord,
+} from "@/lib/progress";
 
 export type ReviewKindFilter = "all" | ExamKind;
+export type ReviewScope = "due" | "all";
 export type ReviewQuestionKind = ExamKind;
 
 export type VocabularyReviewQuestion = {
@@ -47,6 +54,7 @@ type GenerateReviewSessionInput = {
   weakItems: WeakItemRecord[];
   dataBanks: ReviewDataBanks;
   kind: ReviewKindFilter;
+  scope?: ReviewScope;
   questionLimit?: number;
   recentlySeenSourceIds?: string[];
 };
@@ -58,29 +66,27 @@ type ConjugationExampleItem = {
 
 export const REVIEW_QUESTION_LIMIT = 30;
 
-export function getReviewableWeakItems(progress: LearningProgressState, kind: ReviewKindFilter) {
-  const filtered = kind === "all" ? progress.weakItems : progress.weakItems.filter((item) => item.kind === kind);
+export function getReviewableWeakItems(progress: LearningProgressState, kind: ReviewKindFilter, scope: ReviewScope) {
+  const baseItems = scope === "due" ? getDueWeakItems(progress) : progress.weakItems;
+  const filtered = kind === "all" ? baseItems : baseItems.filter((item) => item.kind === kind);
 
-  return [...filtered].sort((a, b) => {
-    if (b.wrongCount !== a.wrongCount) {
-      return b.wrongCount - a.wrongCount;
-    }
-
-    return new Date(b.lastWrongAt).getTime() - new Date(a.lastWrongAt).getTime();
-  });
+  return [...filtered].sort((a, b) => getWeakItemPriority(b) - getWeakItemPriority(a));
 }
 
 export function generateReviewSession({
   weakItems,
   dataBanks,
   kind,
+  scope = "all",
   questionLimit = REVIEW_QUESTION_LIMIT,
   recentlySeenSourceIds = [],
 }: GenerateReviewSessionInput): ReviewQuestion[] {
-  const reviewableWeakItems = sortByRecentlySeen(
-    kind === "all" ? weakItems : weakItems.filter((item) => item.kind === kind),
-    (item) => item.sourceId,
+  const now = new Date();
+  const baseItems = scope === "due" ? weakItems.filter((item) => isDue(item, now)) : weakItems;
+  const reviewableWeakItems = sortByPriority(
+    kind === "all" ? baseItems : baseItems.filter((item) => item.kind === kind),
     recentlySeenSourceIds,
+    now,
   );
   const questions: ReviewQuestion[] = [];
   const usedSourceIds = new Set<string>();
@@ -242,4 +248,17 @@ function sortByRecentlySeen<T>(items: T[], getSourceId: (item: T) => string, rec
     ...shuffled.filter((item) => !recentlySeen.has(getSourceId(item))),
     ...shuffled.filter((item) => recentlySeen.has(getSourceId(item))),
   ];
+}
+
+function sortByPriority(items: WeakItemRecord[], recentlySeenSourceIds: string[], now: Date) {
+  return shuffle(items).sort(
+    (a, b) =>
+      getWeakItemPriority(b, now, recentlySeenSourceIds) - getWeakItemPriority(a, now, recentlySeenSourceIds),
+  );
+}
+
+function isDue(item: WeakItemRecord, now: Date) {
+  const nextReviewAt = item.nextReviewAt ?? item.lastWrongAt;
+  const nextReviewTime = new Date(nextReviewAt).getTime();
+  return !Number.isFinite(nextReviewTime) || nextReviewTime <= now.getTime();
 }

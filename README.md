@@ -6,16 +6,17 @@ Next.js + TypeScript + Tailwind CSS PWA sample app for JLPT-style vocabulary pra
 Vocabulary bank, grammar bank, and conjugation content are curated learning samples. They are designed to grow gradually and are not official complete JLPT lists.
 Progress Lite is saved locally in the browser with `localStorage`; there is no login, database, or cloud sync yet. Clearing browser data will clear progress.
 Weak Items Review Mode uses local weak items stored in `localStorage`; weak items are local to the browser/device and do not require login, database, or cloud sync.
+SRS Lite uses local weak item history to suggest due reviews. It is lightweight and local-only, not a full Anki clone.
 Daily Practice is a 20-question mixed practice session that can include local weak items, vocabulary, grammar, and conjugation. Progress remains local-only through `localStorage`.
 Anti-repetition is lightweight and local-only: recent question source IDs are saved in `localStorage` to reduce obvious repeats across short practice sessions.
 Grammar sentence-fill questions focus on making the whole Japanese sentence grammatically natural. Some questions require paying attention to the connection before and after the blank.
 Conjugation questions ask learners to transform a base word into a target form, so learners should pay attention to word type such as verb vs い-adjective.
 Vocabulary example questions may ask learners to identify the dictionary form of a word used in a sentence; this is different from directly filling the exact conjugated form into the sentence.
 
-Current curated content counts after v0-N:
-- Vocabulary: N5 380 / N4 380
-- Grammar: N5 55 / N4 55
-- Conjugation: 47 total rules
+Current curated content counts after v0-O:
+- Vocabulary: N5 450 / N4 450
+- Grammar: N5 63 / N4 63
+- Conjugation: 56 total rules
 
 ## Features
 
@@ -38,8 +39,9 @@ Current curated content counts after v0-N:
 - Conjugation Exam uses curated learning sample conjugation data with fixed 20-question sessions
 - Conjugation Exam is not an official complete JLPT exam
 - Dashboard / Progress Lite tracks recent exam results, local accuracy, and weak items
+- SRS Lite suggests due weak item reviews using local `wrongCount`, `lastReviewedAt`, and `nextReviewAt`
 - Dashboard empty state explains that progress starts after completing an exam; progress is local-only
-- Weak Items Review Mode lets learners review local Vocabulary, Grammar, and Conjugation mistakes with four-choice questions
+- Weak Items Review Mode lets learners review due or all local Vocabulary, Grammar, and Conjugation mistakes with four-choice questions
 - Daily Practice mixes weak items, vocabulary, grammar, and conjugation in one 20-question session
 - v0-J includes light UI polish for a more consistent mobile-first learning experience
 

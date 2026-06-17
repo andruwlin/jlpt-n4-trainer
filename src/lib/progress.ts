@@ -22,6 +22,10 @@ export type WeakItemRecord = {
   level?: "N5" | "N4";
   wrongCount: number;
   lastWrongAt: string;
+  correctReviewCount?: number;
+  lastReviewedAt?: string;
+  nextReviewAt?: string;
+  ease?: number;
 };
 
 export type RecentlySeenItem = {
@@ -44,9 +48,17 @@ export type TodayStats = {
   totalExamCount: number;
 };
 
+export type ReviewStats = {
+  dueCount: number;
+  totalWeakItems: number;
+  topDueItems: WeakItemRecord[];
+  nextReviewAt?: string;
+};
+
 const STORAGE_KEY = "jlpt-trainer-progress-v1";
 const MAX_RESULTS = 100;
 const MAX_RECENTLY_SEEN = 250;
+const REVIEW_INTERVAL_DAYS = [1, 3, 7, 14];
 
 const emptyProgress: LearningProgressState = {
   version: 1,
@@ -74,6 +86,7 @@ export function getProgress(): LearningProgressState {
 
     return {
       ...parsed,
+      weakItems: parsed.weakItems.map(normalizeWeakItem),
       recentlySeen: Array.isArray(parsed.recentlySeen) ? parsed.recentlySeen : [],
     };
   } catch {
@@ -107,6 +120,8 @@ export function recordWeakItem(item: Omit<WeakItemRecord, "id" | "wrongCount" | 
               level: item.level,
               wrongCount: weakItem.wrongCount + 1,
               lastWrongAt: now,
+              nextReviewAt: now,
+              ease: weakItem.ease ?? 1,
             }
           : weakItem,
       )
@@ -116,6 +131,9 @@ export function recordWeakItem(item: Omit<WeakItemRecord, "id" | "wrongCount" | 
           ...item,
           wrongCount: 1,
           lastWrongAt: now,
+          correctReviewCount: 0,
+          nextReviewAt: now,
+          ease: 1,
         },
         ...progress.weakItems,
       ];
@@ -203,6 +221,99 @@ export function getWeakItems(limit = 10) {
       return new Date(b.lastWrongAt).getTime() - new Date(a.lastWrongAt).getTime();
     })
     .slice(0, limit);
+}
+
+export function getDueWeakItems(progress = getProgress(), now = new Date()) {
+  return progress.weakItems
+    .filter((item) => isWeakItemDue(item, now))
+    .sort((a, b) => getWeakItemPriority(b, now) - getWeakItemPriority(a, now));
+}
+
+export function getWeakItemPriority(item: WeakItemRecord, now = new Date(), recentlySeenSourceIds: string[] = []) {
+  const nextReviewTime = getReviewTime(item.nextReviewAt ?? item.lastWrongAt);
+  const overdueHours = Math.max(0, now.getTime() - nextReviewTime) / 36e5;
+  const dueBoost = nextReviewTime <= now.getTime() ? 1000 : 0;
+  const recentlySeenPenalty = recentlySeenSourceIds.includes(item.sourceId) && dueBoost === 0 ? 250 : 0;
+
+  return dueBoost + item.wrongCount * 100 + Math.min(overdueHours, 240) - recentlySeenPenalty;
+}
+
+export function updateWeakItemAfterReview(item: WeakItemRecord, isCorrect: boolean, now = new Date()): WeakItemRecord {
+  const nowIso = now.toISOString();
+
+  if (!isCorrect) {
+    return {
+      ...item,
+      wrongCount: item.wrongCount + 1,
+      correctReviewCount: 0,
+      lastWrongAt: nowIso,
+      lastReviewedAt: nowIso,
+      nextReviewAt: new Date(now.getTime() + 10 * 60 * 1000).toISOString(),
+      ease: item.ease ?? 1,
+    };
+  }
+
+  const correctReviewCount = (item.correctReviewCount ?? 0) + 1;
+  const dayOffset = REVIEW_INTERVAL_DAYS[Math.min(correctReviewCount, REVIEW_INTERVAL_DAYS.length) - 1];
+
+  return {
+    ...item,
+    correctReviewCount,
+    lastReviewedAt: nowIso,
+    nextReviewAt: addDays(now, dayOffset).toISOString(),
+    ease: item.ease ?? 1,
+  };
+}
+
+export function recordWeakItemReview(kind: ExamKind, sourceId: string, isCorrect: boolean) {
+  const progress = getProgress();
+  const weakItem = progress.weakItems.find((item) => item.kind === kind && item.sourceId === sourceId);
+  if (!weakItem) {
+    return;
+  }
+
+  const updated = updateWeakItemAfterReview(weakItem, isCorrect);
+  saveProgress({
+    ...progress,
+    weakItems: progress.weakItems.map((item) => (item.id === weakItem.id ? updated : item)),
+  });
+}
+
+export function getReviewStats(progress = getProgress(), limit = 5, now = new Date()): ReviewStats {
+  const dueItems = getDueWeakItems(progress, now);
+  const futureItems = progress.weakItems
+    .filter((item) => !isWeakItemDue(item, now) && item.nextReviewAt)
+    .sort((a, b) => getReviewTime(a.nextReviewAt) - getReviewTime(b.nextReviewAt));
+
+  return {
+    dueCount: dueItems.length,
+    totalWeakItems: progress.weakItems.length,
+    topDueItems: dueItems.slice(0, limit),
+    nextReviewAt: futureItems[0]?.nextReviewAt,
+  };
+}
+
+function normalizeWeakItem(item: WeakItemRecord): WeakItemRecord {
+  return {
+    ...item,
+    wrongCount: typeof item.wrongCount === "number" ? item.wrongCount : 1,
+    correctReviewCount: typeof item.correctReviewCount === "number" ? item.correctReviewCount : 0,
+    nextReviewAt: item.nextReviewAt ?? item.lastWrongAt,
+    ease: typeof item.ease === "number" ? item.ease : 1,
+  };
+}
+
+function isWeakItemDue(item: WeakItemRecord, now: Date) {
+  return getReviewTime(item.nextReviewAt ?? item.lastWrongAt) <= now.getTime();
+}
+
+function getReviewTime(value?: string) {
+  const time = value ? new Date(value).getTime() : 0;
+  return Number.isFinite(time) ? time : 0;
+}
+
+function addDays(date: Date, days: number) {
+  return new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
 }
 
 function saveProgress(progress: LearningProgressState) {

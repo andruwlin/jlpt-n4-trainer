@@ -7,11 +7,13 @@ import {
   getAccuracyByKind,
   getProgress,
   getRecentResults,
+  getReviewStats,
   getTodayStats,
   getWeakItems,
   type ExamKind,
   type ExamResultKind,
   type ExamResultRecord,
+  type ReviewStats,
   type TodayStats,
   type WeakItemRecord,
 } from "@/lib/progress";
@@ -28,6 +30,7 @@ type DashboardSnapshot = {
   accuracyByKind: Record<ExamKind, number | undefined>;
   recentResults: ExamResultRecord[];
   weakItems: WeakItemRecord[];
+  reviewStats: ReviewStats;
 };
 
 const emptySnapshot: DashboardSnapshot = {
@@ -43,6 +46,11 @@ const emptySnapshot: DashboardSnapshot = {
   },
   recentResults: [],
   weakItems: [],
+  reviewStats: {
+    dueCount: 0,
+    totalWeakItems: 0,
+    topDueItems: [],
+  },
 };
 
 export function DashboardClient() {
@@ -54,6 +62,7 @@ export function DashboardClient() {
       accuracyByKind: getAccuracyByKind(),
       recentResults: getRecentResults(8),
       weakItems: getWeakItems(10),
+      reviewStats: getReviewStats(getProgress()),
     });
   }
 
@@ -162,18 +171,69 @@ export function DashboardClient() {
               <h2 className="mt-1 text-2xl font-bold text-ink">錯題紀錄</h2>
             </div>
             {snapshot.weakItems.length > 0 ? (
-              <Link
-                href="/review"
-                className="rounded-lg bg-ink px-4 py-2 text-sm font-bold text-white"
-              >
-                Review weak items
-                <span className="block text-xs font-bold text-white/75">錯題重練</span>
-              </Link>
+              <div className="flex flex-wrap gap-2">
+                <Link
+                  href="/review"
+                  className="rounded-lg bg-ink px-4 py-2 text-sm font-bold text-white"
+                >
+                  Review due items
+                  <span className="block text-xs font-bold text-white/75">建議複習</span>
+                </Link>
+                <Link
+                  href="/review?scope=all"
+                  className="rounded-lg border border-ink/10 bg-paper px-4 py-2 text-sm font-bold text-ink"
+                >
+                  Review all
+                  <span className="block text-xs font-bold text-ink/55">全部錯題</span>
+                </Link>
+              </div>
             ) : null}
           </div>
           {snapshot.weakItems.length > 0 ? (
-            <div className="mt-4 space-y-3">
-              {snapshot.weakItems.map((item) => (
+            <div className="mt-4 space-y-4">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <SummaryMini label="今日建議複習數" value={snapshot.reviewStats.dueCount} />
+                <SummaryMini label="錯題總數" value={snapshot.reviewStats.totalWeakItems} />
+              </div>
+
+              {snapshot.reviewStats.dueCount === 0 ? (
+                <p className="rounded-lg bg-paper px-3 py-3 text-sm font-bold leading-6 text-ink/60">
+                  目前沒有到期錯題，可以稍後再來，或練習全部錯題。
+                  {snapshot.reviewStats.nextReviewAt ? ` 下一次建議複習：${formatDateTime(snapshot.reviewStats.nextReviewAt)}。` : ""}
+                </p>
+              ) : null}
+
+              {snapshot.reviewStats.topDueItems.length > 0 ? (
+                <div>
+                  <p className="mb-2 text-xs font-bold text-ink/50">Top due items</p>
+                  <div className="space-y-3">
+                    {snapshot.reviewStats.topDueItems.map((item) => (
+                      <WeakItemRow key={item.id} item={item} />
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              <div>
+                <p className="mb-2 text-xs font-bold text-ink/50">Highest wrong count</p>
+                <div className="space-y-3">
+                  {snapshot.weakItems.map((item) => (
+                    <WeakItemRow key={item.id} item={item} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <EmptyState text={hasProgress ? "目前沒有錯題，保持下去！" : "答錯的題目會累積在這裡，方便之後回頭複習。"} />
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function WeakItemRow({ item }: { item: WeakItemRecord }) {
+  return (
                 <div key={item.id} className="rounded-lg bg-paper p-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <p className="break-words font-bold text-ink">{item.label}</p>
@@ -184,15 +244,19 @@ export function DashboardClient() {
                   <p className="mt-2 text-sm leading-6 text-ink/65">
                     {kindLabels[item.kind]}{item.level ? ` · ${item.level}` : ""}
                   </p>
-                  <p className="text-xs font-bold text-ink/45">{formatDateTime(item.lastWrongAt)}</p>
+                  <p className="text-xs font-bold text-ink/45">
+                    Last wrong: {formatDateTime(item.lastWrongAt)}
+                    {item.nextReviewAt ? ` · Next: ${formatDateTime(item.nextReviewAt)}` : ""}
+                  </p>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <EmptyState text={hasProgress ? "目前沒有錯題，保持下去！" : "答錯的題目會累積在這裡，方便之後回頭複習。"} />
-          )}
-        </div>
-      </section>
+  );
+}
+
+function SummaryMini({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-lg bg-paper p-3">
+      <p className="text-xs font-bold text-ink/50">{label}</p>
+      <p className="mt-1 text-2xl font-bold text-ink">{value}</p>
     </div>
   );
 }

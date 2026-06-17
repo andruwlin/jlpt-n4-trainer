@@ -5,13 +5,20 @@ import { useEffect, useMemo, useState } from "react";
 import { ReviewCard } from "@/components/ReviewCard";
 import { ReviewSetup } from "@/components/ReviewSetup";
 import { StatPill } from "@/components/StatPill";
-import type { ReviewDataBanks, ReviewKindFilter, ReviewQuestion } from "@/lib/review";
+import type { ReviewDataBanks, ReviewKindFilter, ReviewQuestion, ReviewScope } from "@/lib/review";
 import {
   generateReviewSession,
   getReviewableWeakItems,
   REVIEW_QUESTION_LIMIT,
 } from "@/lib/review";
-import { getProgress, getRecentlySeen, recordRecentlySeen, type LearningProgressState } from "@/lib/progress";
+import {
+  getProgress,
+  getRecentlySeen,
+  getReviewStats,
+  recordRecentlySeen,
+  recordWeakItemReview,
+  type LearningProgressState,
+} from "@/lib/progress";
 
 type ReviewRunnerProps = {
   dataBanks: ReviewDataBanks;
@@ -21,11 +28,13 @@ const emptyProgress: LearningProgressState = {
   version: 1,
   results: [],
   weakItems: [],
+  recentlySeen: [],
 };
 
 export function ReviewRunner({ dataBanks }: ReviewRunnerProps) {
   const [progress, setProgress] = useState<LearningProgressState>(emptyProgress);
   const [kind, setKind] = useState<ReviewKindFilter>("all");
+  const [scope, setScope] = useState<ReviewScope>("due");
   const [questions, setQuestions] = useState<ReviewQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string>();
@@ -36,19 +45,24 @@ export function ReviewRunner({ dataBanks }: ReviewRunnerProps) {
 
   useEffect(() => {
     setProgress(getProgress());
+    if (new URLSearchParams(window.location.search).get("scope") === "all") {
+      setScope("all");
+    }
   }, []);
 
-  const reviewableWeakItems = useMemo(() => getReviewableWeakItems(progress, kind), [progress, kind]);
+  const reviewStats = useMemo(() => getReviewStats(progress), [progress]);
+  const reviewableWeakItems = useMemo(() => getReviewableWeakItems(progress, kind, scope), [progress, kind, scope]);
   const previewQuestions = useMemo(
     () =>
       generateReviewSession({
         weakItems: progress.weakItems,
         dataBanks,
         kind,
+        scope,
         questionLimit: REVIEW_QUESTION_LIMIT,
         recentlySeenSourceIds: getRecentlySeen().map((item) => item.sourceId),
       }),
-    [dataBanks, kind, progress.weakItems],
+    [dataBanks, kind, progress.weakItems, scope],
   );
 
   const question = questions[currentIndex];
@@ -61,6 +75,7 @@ export function ReviewRunner({ dataBanks }: ReviewRunnerProps) {
       weakItems: progress.weakItems,
       dataBanks,
       kind,
+      scope,
       questionLimit: REVIEW_QUESTION_LIMIT,
       recentlySeenSourceIds: getRecentlySeen().map((item) => item.sourceId),
     });
@@ -81,6 +96,8 @@ export function ReviewRunner({ dataBanks }: ReviewRunnerProps) {
 
     setSelectedAnswer(answer);
     recordRecentlySeen({ kind: question.kind, sourceId: question.weakItem.sourceId });
+    recordWeakItemReview(question.kind, question.weakItem.sourceId, answer === question.answer);
+    setProgress(getProgress());
     setAnsweredCount((count) => count + 1);
     if (answer === question.answer) {
       setCorrectCount((count) => count + 1);
@@ -116,10 +133,13 @@ export function ReviewRunner({ dataBanks }: ReviewRunnerProps) {
       <div className="space-y-4">
         <ReviewSetup
           kind={kind}
+          scope={scope}
           totalWeakItems={progress.weakItems.length}
+          dueWeakItems={reviewStats.dueCount}
           availableQuestions={previewQuestions.length}
           questionLimit={REVIEW_QUESTION_LIMIT}
           onKindChange={setKind}
+          onScopeChange={setScope}
           onStart={startReview}
         />
         <section className="rounded-lg border border-white/80 bg-white/75 p-4 shadow-card">
@@ -130,6 +150,7 @@ export function ReviewRunner({ dataBanks }: ReviewRunnerProps) {
               value={totalQuestions ? `${Math.min(currentIndex + 1, totalQuestions)} / ${totalQuestions}` : "0 / 0"}
             />
             <StatPill label="可重練" value={reviewableWeakItems.length} />
+            <StatPill label="到期" value={reviewStats.dueCount} />
             <StatPill label="答對" value={correctCount} />
             <StatPill label="正確率" value={`${accuracy}%`} />
           </div>

@@ -1,7 +1,7 @@
 import type { ConjugationLevel, ConjugationRule } from "@/data/conjugation";
 import type { GrammarLevel, GrammarPoint } from "@/data/grammar";
 import type { JLPTLevel, JLPTWord } from "@/data/words";
-import type { WeakItemRecord } from "@/lib/progress";
+import { getWeakItemPriority, type WeakItemRecord } from "@/lib/progress";
 
 export type DailyPracticeLevel = JLPTLevel | "Mixed";
 
@@ -129,15 +129,13 @@ function buildWeakQuestions({
   recentlySeenSourceIds: string[];
 }) {
   const questions: DailyPracticeQuestion[] = [];
-  const sortedWeakItems = [...weakItems].sort((a, b) => {
-    if (b.wrongCount !== a.wrongCount) {
-      return b.wrongCount - a.wrongCount;
-    }
+  const now = new Date();
+  const sortedWeakItems = shuffle(weakItems).sort(
+    (a, b) =>
+      getWeakItemPriority(b, now, recentlySeenSourceIds) - getWeakItemPriority(a, now, recentlySeenSourceIds),
+  );
 
-    return new Date(b.lastWrongAt).getTime() - new Date(a.lastWrongAt).getTime();
-  });
-
-  for (const weakItem of sortByRecentlySeen(sortedWeakItems, (item) => item.sourceId, recentlySeenSourceIds)) {
+  for (const weakItem of sortedWeakItems) {
     if (questions.length >= limit) {
       break;
     }
